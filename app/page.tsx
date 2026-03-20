@@ -265,9 +265,14 @@ const dpesAffiches = dpesFiltered.slice(currentPage * PAGE_SIZE, (currentPage + 
             <span style={{ fontSize: 13, fontWeight: 600, color: '#2260E8' }}>Cannes · 06400</span>
           </div>
         </div>
-        <Link href="/carte" style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, background: 'linear-gradient(135deg,#0A2880,#1A4DC8)', color: '#fff', textDecoration: 'none' }}>
-          Voir la carte
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+  <button onClick={async () => { const { createClient } = await import('@supabase/supabase-js'); const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!); await sb.auth.signOut(); window.location.href = '/login'; }} style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, border: '1.5px solid #E8EAED', color: '#6B7280', background: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
+    Déconnexion
+  </button>
+  <Link href="/carte" style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, background: 'linear-gradient(135deg,#0A2880,#1A4DC8)', color: '#fff', textDecoration: 'none' }}>
+    Voir la carte
+  </Link>
+</div>
       </div>
 
       <div style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 24px 80px' }}>
