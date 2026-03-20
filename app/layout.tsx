@@ -21,9 +21,12 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "immopulse — Détectez les vendeurs avant tout le monde",
+  title: "ImmoPulse",
   description: "Détectez les signaux de vente avant que le marché ne les voit.",
-};
+  icons: {
+    icon: '/favicon.ico',
+  },
+}
 
 export default function RootLayout({
   children,
