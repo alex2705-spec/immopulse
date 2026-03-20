@@ -24,9 +24,9 @@ export const metadata: Metadata = {
   title: "ImmoPulse",
   description: "Détectez les signaux de vente avant que le marché ne les voit.",
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
-    apple: '/favicon.ico',
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
   },
 }
 
