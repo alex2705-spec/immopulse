@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { supabase } from '../supabase'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
@@ -15,7 +15,6 @@ export default function ResetPasswordPage() {
   const searchParams = useSearchParams()
 
   useEffect(() => {
-    // Méthode 1 : token_hash dans l'URL (nouveau format Supabase)
     const token_hash = searchParams.get('token_hash')
     const type = searchParams.get('type')
 
@@ -27,7 +26,6 @@ export default function ResetPasswordPage() {
       return
     }
 
-    // Méthode 2 : access_token dans le hash de l'URL (ancien format)
     const hash = window.location.hash
     if (hash) {
       const params = new URLSearchParams(hash.substring(1))
@@ -42,7 +40,6 @@ export default function ResetPasswordPage() {
       }
     }
 
-    // Méthode 3 : écouter l'événement PASSWORD_RECOVERY
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') setReady(true)
     })
@@ -111,5 +108,13 @@ export default function ResetPasswordPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #03082a, #0e2fa0)' }}/>}>
+      <ResetPasswordForm />
+    </Suspense>
   )
 }
