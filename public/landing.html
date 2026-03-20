@@ -232,6 +232,7 @@ footer { background: #060f2e; padding: 60px 24px 32px; }
     scroll-snap-type: x mandatory;
     gap: 16px;
     padding: 0 24px 16px;
+    background: transparent;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
@@ -243,6 +244,10 @@ footer { background: #060f2e; padding: 60px 24px 32px; }
   }
 
   /* FOOTER MOBILE */
+
+.ft-col:first-child { text-align: center; }
+.ft-col:first-child .ft-desc { margin: 16px auto 0; }
+
   .ft-grid {
     grid-template-columns: 1fr;
     gap: 32px;
