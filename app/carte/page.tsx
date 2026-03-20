@@ -246,7 +246,7 @@ export default function CartePage() {
           <button onClick={logout} style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, border: '1.5px solid #E8EAED', color: '#6B7280', background: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
             Déconnexion
           </button>
-          <Link href="/" style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, border: '1.5px solid #E8EAED', color: '#6B7280', textDecoration: 'none' }}>Espace Prospection</Link>
+          <Link href="/prospection" style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, border: '1.5px solid #E8EAED', color: '#6B7280', textDecoration: 'none' }}>Espace Prospection</Link>
         </div>
       </div>
 
