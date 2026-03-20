@@ -239,7 +239,13 @@ export default function CartePage() {
           <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: -0.5, color: '#111', fontFamily: 'var(--font-jakarta), sans-serif' }}>immopulse</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 100, padding: '5px 14px' }}>
             <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#2260E8' }}/>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#2260E8' }}>{access?.codesPostaux.join(' · ')}</span>
+            <div style={{ display: 'flex', gap: 6 }}>
+  {access?.codesPostaux.map(cp => (
+    <span key={cp} style={{ fontSize: 12, fontWeight: 600, color: '#2260E8', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 100, padding: '2px 10px' }}>
+      {cp}
+    </span>
+  ))}
+</div>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
