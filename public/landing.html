@@ -226,16 +226,17 @@ footer { background: #060f2e; padding: 60px 24px 32px; }
 
 @media (max-width: 768px) {
   /* PRICING SLIDER MOBILE */
-  .price-grid {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 16px;
-    padding: 0 24px 16px;
-    background: transparent;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
+.price-grid {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 16px;
+  padding: 0 24px 16px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin: 0 -24px;
+  background: transparent;
+}
   .price-grid::-webkit-scrollbar { display: none; }
   .price-card {
     min-width: 80vw;
@@ -361,7 +362,8 @@ footer { background: #060f2e; padding: 60px 24px 32px; }
       <span class="bl-lbl" id="lbl-a">Annuel <span style="background:#D1FAE5;color:#065F46;font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;margin-left:4px;">-10%</span></span>
     </div>
 
-    <div class="price-grid">
+    <div style="overflow: hidden;">
+     <div class="price-grid">
       <div class="price-card">
         <div class="price-name">Starter</div>
         <div class="price-amt" id="p1">89&euro; <span>HT / mois</span></div>
@@ -402,6 +404,7 @@ footer { background: #060f2e; padding: 60px 24px 32px; }
         </div>
         <a href="#demo" class="btn-price">Nous contacter</a>
       </div>
+    </div>
     </div>
   </div>
 </div>
