@@ -1,10 +1,9 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import Link from 'next/link'
-import { supabase } from './supabase'
-import { useFavoris } from './useFavoris'
-import { useAuth } from './useAuth'
+import { supabase } from '../supabase'
+import { useFavoris } from '../useFavoris'
+import { useAuth } from '../useAuth'
 
 type DPE = {
   id: string
