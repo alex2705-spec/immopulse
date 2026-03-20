@@ -25,6 +25,8 @@ export const metadata: Metadata = {
   description: "Détectez les signaux de vente avant que le marché ne les voit.",
   icons: {
     icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
   },
 }
 
