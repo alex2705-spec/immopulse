@@ -69,7 +69,7 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <span style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 800, fontSize: 28, color: '#fff', letterSpacing: -0.5 }}>
+          <span style={{ fontFamily: 'var(--font-jakarta), sans-serif', fontWeight: 800, fontSize: 28, color: '#fff', letterSpacing: -0.5 }}>
             immopulse
           </span>
         </div>
