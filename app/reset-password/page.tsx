@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
@@ -10,14 +10,45 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [ready, setReady] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
+    // Méthode 1 : token_hash dans l'URL (nouveau format Supabase)
+    const token_hash = searchParams.get('token_hash')
+    const type = searchParams.get('type')
+
+    if (token_hash && type === 'recovery') {
+      supabase.auth.verifyOtp({ token_hash, type: 'recovery' }).then(({ error }) => {
+        if (error) setError('Lien invalide ou expiré.')
+        else setReady(true)
+      })
+      return
+    }
+
+    // Méthode 2 : access_token dans le hash de l'URL (ancien format)
+    const hash = window.location.hash
+    if (hash) {
+      const params = new URLSearchParams(hash.substring(1))
+      const access_token = params.get('access_token')
+      const refresh_token = params.get('refresh_token')
+      if (access_token && refresh_token) {
+        supabase.auth.setSession({ access_token, refresh_token }).then(({ error }) => {
+          if (error) setError('Lien invalide ou expiré.')
+          else setReady(true)
+        })
+        return
+      }
+    }
+
+    // Méthode 3 : écouter l'événement PASSWORD_RECOVERY
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {}
+      if (event === 'PASSWORD_RECOVERY') setReady(true)
     })
+
     return () => subscription.unsubscribe()
-  }, [])
+  }, [searchParams])
 
   async function handleSubmit() {
     setError('')
@@ -27,16 +58,15 @@ export default function ResetPasswordPage() {
     setLoading(true)
     const { error } = await supabase.auth.updateUser({ password })
     setLoading(false)
-    if (error) {
-      setError(error.message)
-    } else {
+    if (error) setError(error.message)
+    else {
       setSuccess(true)
       setTimeout(() => router.push('/carte'), 2000)
     }
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0A2880 0%, #1A4DC8 100%)', fontFamily: 'DM Sans, sans-serif', padding: 20 }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #03082a 0%, #0a1d6e 40%, #0e2fa0 70%, #071840 100%)', fontFamily: 'DM Sans, sans-serif', padding: 20 }}>
       <div style={{ background: '#fff', borderRadius: 20, padding: '40px 36px', width: '100%', maxWidth: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32 }}>
           <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#2260E8,#1035A0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -46,6 +76,7 @@ export default function ResetPasswordPage() {
         </div>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#111', margin: '0 0 6px', letterSpacing: -0.5 }}>Nouveau mot de passe</h1>
         <p style={{ fontSize: 13, color: '#9CA3AF', margin: '0 0 28px' }}>Choisissez un mot de passe sécurisé</p>
+
         {success ? (
           <div style={{ textAlign: 'center', padding: '20px 0' }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>✓</div>
@@ -72,9 +103,9 @@ export default function ResetPasswordPage() {
                 {error}
               </div>
             )}
-            <button onClick={handleSubmit} disabled={loading}
-              style={{ width: '100%', padding: '13px', borderRadius: 12, border: 'none', background: loading ? '#9CA3AF' : 'linear-gradient(135deg,#0A2880,#1A4DC8)', color: '#fff', fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
-              {loading ? 'Mise à jour...' : 'Mettre à jour le mot de passe'}
+            <button onClick={handleSubmit} disabled={loading || !ready}
+              style={{ width: '100%', padding: '13px', borderRadius: 12, border: 'none', background: (!ready || loading) ? '#9CA3AF' : 'linear-gradient(135deg,#0A2880,#1A4DC8)', color: '#fff', fontSize: 14, fontWeight: 600, cursor: (!ready || loading) ? 'not-allowed' : 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
+              {loading ? 'Mise à jour...' : !ready ? 'Vérification...' : 'Mettre à jour le mot de passe'}
             </button>
           </>
         )}
