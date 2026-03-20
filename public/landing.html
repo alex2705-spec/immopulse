@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>immopulse</title>
+<title>ImmoPulse</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0idXJsKCNnKSIvPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMzIiIHkyPSIzMiI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzBBMjg4MCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFBNERDOCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwb2x5bGluZSBwb2ludHM9IjQsMTggOSwxOCAxMSwxMiAxNCwyMiAxNywxMCAyMCwyMCAyMywxOCAyOCwxOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjBBNUZBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -94,13 +94,13 @@ h2 { font-family: 'DM Serif Display', serif; font-size: clamp(30px,4vw,50px); fo
 .leaflet-control-attribution { display: none !important; }
 
 /* TARIFS */
-.billing-switch { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 40px 0 48px; }
+.billing-switch { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 40px 0 48px; background: rgba(34,96,232,0.06); border: 1.5px solid rgba(34,96,232,0.15); border-radius: 100px; padding: 8px 20px; width: fit-content; margin-left: auto; margin-right: auto; margin-top: 40px; margin-bottom: 48px; }
 .bl-lbl { font-size: 14px; color: #6B7280; }
 .bl-lbl.active { font-weight: 600; color: #111827; }
 .bl-track { width: 48px; height: 26px; border-radius: 100px; background: linear-gradient(135deg,#0A2880,#1A4DC8); cursor: pointer; position: relative; flex-shrink: 0; }
 .bl-knob { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform 0.25s; }
 .price-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
-.price-card { border: 1px solid #E8EAED; border-radius: 20px; padding: 36px; }
+.price-card { border: 1px solid #E8EAED; border-radius: 20px; padding: 36px; background: rgba(34,96,232,0.04); }
 .price-card.hot { background: linear-gradient(135deg,#0A2880,#1A4DC8); border-color: transparent; box-shadow: 0 16px 60px rgba(10,40,128,0.3); }
 .price-card.hot * { color: #fff !important; }
 .price-pop { display: inline-block; background: rgba(255,255,255,0.2); border-radius: 100px; padding: 3px 12px; font-size: 11px; font-weight: 600; margin-bottom: 20px; }
@@ -420,7 +420,13 @@ footer { background: #060f2e; padding: 60px 24px 32px; }
 
 
 // BILLING TOGGLE
-var isAnnuel = false;
+var isAnnuel = true;
+document.getElementById('bl-knob').style.transform = 'translateX(22px)';
+document.getElementById('lbl-m').className = 'bl-lbl';
+document.getElementById('lbl-a').className = 'bl-lbl active';
+document.getElementById('p1').innerHTML = '79&euro; <span>HT / mois</span>';
+document.getElementById('p2').innerHTML = '159&euro; <span>HT / mois</span>';
+
 document.getElementById('bl-track').addEventListener('click', function() {
   isAnnuel = !isAnnuel;
   document.getElementById('bl-knob').style.transform = isAnnuel ? 'translateX(22px)' : 'translateX(0)';
