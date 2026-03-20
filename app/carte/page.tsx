@@ -236,7 +236,7 @@ export default function CartePage() {
           <div style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg,#2260E8,#1035A0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="14" height="14" viewBox="0 0 16 16" fill="#fff"><path d="M8 1a5 5 0 0 1 5 5c0 3.5-5 9-5 9S3 9.5 3 6a5 5 0 0 1 5-5zm0 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
           </div>
-          <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: -0.5, color: '#111' }}>immopulse</span>
+          <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: -0.5, color: '#111', fontFamily: 'var(--font-jakarta), sans-serif' }}>immopulse</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 100, padding: '5px 14px' }}>
             <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#2260E8' }}/>
             <span style={{ fontSize: 13, fontWeight: 600, color: '#2260E8' }}>{access?.codesPostaux.join(' · ')}</span>
