@@ -331,7 +331,7 @@ export default function CartePage() {
               <div style={{ width: 16, height: 1.5, background: '#6B7280', borderRadius: 2 }}/>
             </button>
             {showMobileMenu && (
-              <div style={{ position: 'absolute', top: 44, right: 0, background: '#fff', border: '1px solid #E8EAED', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', padding: 8, zIndex: 9999, minWidth: 180 }}>
+              <div style={{ position: 'absolute', top: 44, right: 0, background: '#fff', border: '1px solid #E8EAED', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', padding: 8, zIndex: 999999, minWidth: 180 }}>
                 <Link href="/prospection" onClick={() => setShowMobileMenu(false)}
                   style={{ display: 'block', padding: '10px 14px', borderRadius: 10, fontSize: 14, fontWeight: 500, color: '#111', textDecoration: 'none', marginBottom: 4 }}>
                   Espace Prospection
