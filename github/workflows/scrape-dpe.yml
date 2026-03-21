@@ -1,0 +1,28 @@
+name: Scraping DPE quotidien
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # tous les jours à 6h UTC (7h Paris)
+  workflow_dispatch:       # permet de lancer manuellement depuis GitHub
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installer les dépendances
+        run: pip install requests
+
+      - name: Lancer le scraping DPE
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python import_dpe_auto.py
