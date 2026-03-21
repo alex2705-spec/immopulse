@@ -15,7 +15,6 @@ body { font-family: 'DM Sans', sans-serif; color: #111827; background: #fff; ove
 /* NAV */
 nav { position: fixed; top: 0; left: 0; right: 0; z-index: 999; height: 68px; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; background: rgba(255,255,255,0.93); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.06); }
 .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-
 .nav-btns { display: flex; gap: 12px; align-items: center; }
 .btn-ghost { padding: 8px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; border: 1.5px solid #E8EAED; color: #6B7280; background: #fff; text-decoration: none; }
 .btn-primary { padding: 9px 22px; border-radius: 100px; font-size: 13px; font-weight: 600; border: none; background: linear-gradient(135deg,#0A2880,#1A4DC8); color: #fff; text-decoration: none; }
@@ -30,7 +29,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 999; height: 68px; di
 .hero p { font-size: 18px; color: rgba(255,255,255,0.7); max-width: 700px; line-height: 1.7; margin-bottom: 44px; white-space: nowrap; text-align: center; }
 .btn-white { padding: 14px 32px; border-radius: 100px; font-size: 15px; font-weight: 600; background: #fff; color: #1035A0; border: none; text-decoration: none; display: inline-block; }
 
-/* STATS */
+/* STATS — desktop */
 .stats-row { display: grid; grid-template-columns: repeat(3,1fr); max-width: 700px; margin: -60px auto 0; padding: 0 24px; position: relative; z-index: 10; }
 .stat-box { background: #fff; border: 1px solid #E8EAED; padding: 28px 20px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
 .stat-box:first-child { border-radius: 16px 0 0 16px; }
@@ -94,7 +93,8 @@ h2 { font-family: 'DM Serif Display', serif; font-size: clamp(30px,4vw,50px); fo
 .leaflet-control-attribution { display: none !important; }
 
 /* TARIFS */
-.billing-switch { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 40px 0 48px; background: rgba(34,96,232,0.06); border: 1.5px solid rgba(34,96,232,0.15); border-radius: 100px; padding: 8px 20px; width: fit-content; margin-left: auto; margin-right: auto; margin-top: 40px; margin-bottom: 48px; }
+.billing-switch { display: inline-flex; align-items: center; gap: 16px; background: rgba(34,96,232,0.06); border: 1.5px solid rgba(34,96,232,0.15); border-radius: 100px; padding: 8px 20px; margin: 40px auto 48px; }
+.billing-switch-wrap { display: flex; justify-content: center; }
 .bl-lbl { font-size: 14px; color: #6B7280; }
 .bl-lbl.active { font-weight: 600; color: #111827; }
 .bl-track { width: 48px; height: 26px; border-radius: 100px; background: linear-gradient(135deg,#0A2880,#1A4DC8); cursor: pointer; position: relative; flex-shrink: 0; }
@@ -144,39 +144,23 @@ footer { background: #060f2e; padding: 60px 24px 32px; }
 
 /* Tablet: <= 900px */
 @media (max-width: 900px) {
-  /* Nav */
   nav { padding: 0 24px; height: 60px; }
   .btn-ghost:not(.btn-primary) { display: none; }
-
-  /* Hero */
   .hero { padding: 100px 24px 70px; min-height: 60vh; }
   .hero p { font-size: 16px; }
-
-  /* Stats */
   .stats-row { max-width: 100%; padding: 0 16px; margin: -48px auto 0; }
   .stat-num { font-size: 26px; }
-
-  /* Two-col -> single col */
   .two-col { grid-template-columns: 1fr; gap: 40px; }
-
-  /* Map panel hidden on tablet, map full width */
   .map-panel { display: none; }
   #map { height: 420px; }
-
-  /* Pricing */
   .price-grid { grid-template-columns: 1fr; max-width: 440px; margin: 0 auto; }
-
-  /* Demo */
   .demo-grid { grid-template-columns: 1fr; gap: 40px; padding: 36px 28px; }
   .demo-side { order: -1; }
-
-  /* Footer */
   .ft-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
 }
 
 /* Mobile: <= 600px */
 @media (max-width: 600px) {
-  /* Nav */
   nav { padding: 0 16px; height: 56px; }
   .nav-btns { gap: 8px; }
   .btn-ghost { display: none; }
@@ -184,91 +168,87 @@ footer { background: #060f2e; padding: 60px 24px 32px; }
   .logo-text { font-size: 17px; }
 
   /* Hero */
-  .hero { padding: 88px 20px 60px; min-height: 55vh; }
+  .hero { padding: 88px 20px 100px; min-height: 55vh; }
   .hero h1 { font-size: clamp(32px, 8vw, 48px); margin-bottom: 16px; }
   .hero p { font-size: 15px; margin-bottom: 32px; white-space: normal; }
   .badge { margin-bottom: 20px; font-size: 11px; }
   .btn-white { padding: 12px 24px; font-size: 14px; }
 
-  /* Stats: stack vertically */
-  .stats-row { grid-template-columns: 1fr; max-width: 280px; margin: 24px auto 0; gap: 0; }
-  .stat-box { border-left: 1px solid #E8EAED !important; }
-  .stat-box:first-child { border-radius: 16px 16px 0 0; border-bottom: none; }
-  .stat-box:last-child { border-radius: 0 0 16px 16px; border-top: none; }
-  .stat-box:not(:first-child):not(:last-child) { border-top: none; border-bottom: none; }
+  /* Stats mobile : slider horizontal à cheval hero/section */
+  .stats-row {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 12px;
+    padding: 0 20px 20px;
+    max-width: 100%;
+    margin: -48px auto 0;
+    position: relative;
+    z-index: 10;
+  }
+  .stats-row::-webkit-scrollbar { display: none; }
+  .stat-box {
+    min-width: 200px;
+    scroll-snap-align: center;
+    flex-shrink: 0;
+    border-radius: 16px !important;
+    border: 1px solid #E8EAED !important;
+    border-left: 1px solid #E8EAED !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
   .stat-num { font-size: 28px; }
 
   /* Sections */
   .section { padding: 64px 16px; }
-
-  /* Carte */
   .dispo-box { padding: 20px; }
   .search-row { flex-direction: column; }
   .search-row button { width: 100%; }
   #map { height: 320px; }
   .map-bar { padding: 10px 14px; flex-wrap: wrap; gap: 6px; }
 
-  /* Pricing */
-  .price-card { padding: 28px 24px; }
+  /* Pricing slider */
+  .price-grid-outer { overflow: hidden; margin: 0 -16px; }
+  .price-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 12px;
+    padding: 0 20px 16px;
+    background: transparent;
+  }
+  .price-grid::-webkit-scrollbar { display: none; }
+  .price-card {
+    min-width: 78vw;
+    scroll-snap-align: center;
+    flex-shrink: 0;
+    padding: 28px 24px;
+  }
   .price-amt { font-size: 40px; }
-  .billing-switch { margin: 28px 0 36px; }
+  .billing-switch { margin: 28px auto 36px; }
 
-  /* Demo form */
+  /* Demo */
   .form-row { grid-template-columns: 1fr; }
   .demo-grid { padding: 28px 20px; gap: 32px; }
   .demo-side h3 { font-size: 24px; }
 
   /* Footer */
-  .ft-grid { grid-template-columns: 1fr; gap: 28px; }
-  .ft-bottom { flex-direction: column; gap: 8px; text-align: center; }
+  .ft-grid { grid-template-columns: 1fr; gap: 28px; text-align: center; }
+  .ft-desc { max-width: 100%; margin: 16px auto 0; }
+  .ft-col:first-child { text-align: center; }
+  .ft-col:first-child .ft-desc { margin: 16px auto 0; }
+  .ft-bottom { flex-direction: column; align-items: center; gap: 8px; text-align: center; }
   footer { padding: 48px 16px 24px; }
 }
-
-@media (max-width: 768px) {
-  /* PRICING SLIDER MOBILE */
-.price-grid {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  gap: 16px;
-  padding: 0 24px 16px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  margin: 0 -24px;
-  background: transparent;
-}
-  .price-grid::-webkit-scrollbar { display: none; }
-  .price-card {
-    min-width: 80vw;
-    scroll-snap-align: center;
-    flex-shrink: 0;
-  }
-
-  /* FOOTER MOBILE */
-
-.ft-col:first-child { text-align: center; }
-.ft-col:first-child .ft-desc { margin: 16px auto 0; }
-
-  .ft-grid {
-    grid-template-columns: 1fr;
-    gap: 32px;
-    text-align: center;
-  }
-  .ft-desc { max-width: 100%; margin: 16px auto 0; }
-  .ft-bottom {
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    text-align: center;
-  }
-}
-
 </style>
 </head>
 <body>
 
 <nav>
-        <a href="#" class="logo">
+  <a href="#" class="logo">
     <svg width="170" height="36" viewBox="0 0 170 36" xmlns="http://www.w3.org/2000/svg">
       <text x="85" y="26" font-family="Plus Jakarta Sans, DM Sans, sans-serif" font-weight="800" font-size="26" fill="#0A2880" text-anchor="middle" letter-spacing="-0.5">immopulse</text>
     </svg>
@@ -354,57 +334,59 @@ footer { background: #060f2e; padding: 60px 24px 32px; }
     <h2>Un acc&egrave;s pour chaque code postal</h2>
     <p class="sub">Prospectez l&agrave; o&ugrave; vos concurrents ne regardent pas encore.</p>
 
-    <div class="billing-switch">
-      <span class="bl-lbl active" id="lbl-m">Mensuel</span>
-      <div class="bl-track" id="bl-track">
-        <div class="bl-knob" id="bl-knob"></div>
+    <div class="billing-switch-wrap">
+      <div class="billing-switch">
+        <span class="bl-lbl" id="lbl-m">Mensuel</span>
+        <div class="bl-track" id="bl-track">
+          <div class="bl-knob" id="bl-knob"></div>
+        </div>
+        <span class="bl-lbl active" id="lbl-a">Annuel <span style="background:#D1FAE5;color:#065F46;font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;margin-left:4px;">-10%</span></span>
       </div>
-      <span class="bl-lbl" id="lbl-a">Annuel <span style="background:#D1FAE5;color:#065F46;font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;margin-left:4px;">-10%</span></span>
     </div>
 
-    <div style="overflow: hidden;">
-     <div class="price-grid">
-      <div class="price-card">
-        <div class="price-name">Starter</div>
-        <div class="price-amt" id="p1">89&euro; <span>HT / mois</span></div>
-        <div class="price-desc">Pour d&eacute;marrer sur un premier secteur.</div>
-        <div class="price-feats">
-          <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>1 code postal</div>
-          <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>1 utilisateur</div>
-          <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Carte + prospection</div>
-          <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Mise &agrave; jour 24/7</div>
+    <div class="price-grid-outer">
+      <div class="price-grid">
+        <div class="price-card">
+          <div class="price-name">Starter</div>
+          <div class="price-amt" id="p1">79&euro; <span>HT / mois</span></div>
+          <div class="price-desc">Pour d&eacute;marrer sur un premier secteur.</div>
+          <div class="price-feats">
+            <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>1 code postal</div>
+            <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>1 utilisateur</div>
+            <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Carte + prospection</div>
+            <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Mise &agrave; jour 24/7</div>
+          </div>
+          <a href="#demo" class="btn-price">Demander un acc&egrave;s</a>
         </div>
-        <a href="#demo" class="btn-price">Demander un acc&egrave;s</a>
-      </div>
-      <div class="price-card hot">
-        <div class="price-pop">Le plus populaire</div>
-        <div class="price-name">Pro</div>
-        <div class="price-amt" id="p2">179&euro; <span>HT / mois</span></div>
-        <div class="price-desc">L'offre compl&egrave;te pour une agence active.</div>
-        <div class="price-feats">
-          <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>3 codes postaux</div>
-          <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>3 utilisateurs</div>
-          <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Carte + prospection</div>
-          <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Mise &agrave; jour 24/7</div>
-          <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Support prioritaire</div>
+        <div class="price-card hot">
+          <div class="price-pop">Le plus populaire</div>
+          <div class="price-name">Pro</div>
+          <div class="price-amt" id="p2">159&euro; <span>HT / mois</span></div>
+          <div class="price-desc">L'offre compl&egrave;te pour une agence active.</div>
+          <div class="price-feats">
+            <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>3 codes postaux</div>
+            <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>3 utilisateurs</div>
+            <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Carte + prospection</div>
+            <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Mise &agrave; jour 24/7</div>
+            <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Support prioritaire</div>
+          </div>
+          <a href="#demo" class="btn-price">Demander un acc&egrave;s</a>
         </div>
-        <a href="#demo" class="btn-price">Demander un acc&egrave;s</a>
-      </div>
-      <div class="price-card">
-        <div class="price-name">Entreprise</div>
-        <div class="price-amt">Sur mesure</div>
-        <div class="price-desc">Pour les r&eacute;seaux multi-agences.</div>
-        <div class="price-feats">
-          <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Codes postaux illimit&eacute;s</div>
-          <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Jusqu&rsquo;&agrave; 100 utilisateurs</div>
-          <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Carte + prospection</div>
-          <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Mise &agrave; jour 24/7</div>
-          <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Dashboard multi-agences</div>
-          <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Accompagnement d&eacute;di&eacute;</div>
+        <div class="price-card">
+          <div class="price-name">Entreprise</div>
+          <div class="price-amt">Sur mesure</div>
+          <div class="price-desc">Pour les r&eacute;seaux multi-agences.</div>
+          <div class="price-feats">
+            <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Codes postaux illimit&eacute;s</div>
+            <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Jusqu&rsquo;&agrave; 100 utilisateurs</div>
+            <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Carte + prospection</div>
+            <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Mise &agrave; jour 24/7</div>
+            <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Dashboard multi-agences</div>
+            <div class="price-feat"><div class="price-ck"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2260E8" stroke-width="1.5" stroke-linecap="round"/></svg></div>Accompagnement d&eacute;di&eacute;</div>
+          </div>
+          <a href="#demo" class="btn-price">Nous contacter</a>
         </div>
-        <a href="#demo" class="btn-price">Nous contacter</a>
       </div>
-    </div>
     </div>
   </div>
 </div>
@@ -443,13 +425,13 @@ footer { background: #060f2e; padding: 60px 24px 32px; }
 
 <footer>
   <div class="ft-grid">
-    <div>
-      <div style="display:flex;align-items:center;gap:10px;">
-                                <svg width="155" height="36" viewBox="0 0 155 36" xmlns="http://www.w3.org/2000/svg">
+    <div style="text-align:center;">
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
+        <svg width="155" height="36" viewBox="0 0 155 36" xmlns="http://www.w3.org/2000/svg">
           <text x="77" y="26" font-family="Plus Jakarta Sans, DM Sans, sans-serif" font-weight="800" font-size="24" fill="#fff" text-anchor="middle" letter-spacing="-0.5">immopulse</text>
         </svg>
       </div>
-      <p class="ft-desc">D&eacute;tectez les signaux de vente avant tout le monde.</p>
+      <p class="ft-desc" style="margin:16px auto 0;">D&eacute;tectez les signaux de vente avant tout le monde.</p>
     </div>
     <div class="ft-col"><h4>Immopulse</h4><a href="#carte">La carte</a><a href="#tarifs">Tarifs</a><a href="#demo">D&eacute;mo</a></div>
     <div class="ft-col"><h4>Contact</h4><a href="mailto:contact@immopulse.io">contact@immopulse.io</a><a href="#">Mentions l&eacute;gales</a><a href="#">CGU</a></div>
@@ -457,11 +439,10 @@ footer { background: #060f2e; padding: 60px 24px 32px; }
   <div class="ft-bottom"><span>&copy; 2026 immopulse</span><a href="/login">Se connecter &rarr;</a></div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 
-
-// BILLING TOGGLE
+// BILLING TOGGLE — annuel par défaut
 var isAnnuel = true;
 document.getElementById('bl-knob').style.transform = 'translateX(22px)';
 document.getElementById('lbl-m').className = 'bl-lbl';
@@ -506,7 +487,6 @@ cityInput.addEventListener('input', function() {
           selCity = {nom: d.nom, cp: cp};
           cityInput.value = d.nom + ' \u00b7 ' + cp;
           cityDrop.style.display = 'none';
-          // Afficher directement le résultat sans passer par checkCity qui reset selCity
           dispoRes.style.display = 'block';
           dispoRes.innerHTML = '<span style="color:#065F46;font-weight:600">\u2713 ' + d.nom + ' \u2014 zone disponible\u00a0! <a href="#demo" style="color:#2260E8">R\u00e9server mon acc\u00e8s \u2192</a></span>';
           selCity = null;
@@ -526,10 +506,8 @@ document.getElementById('check-btn').addEventListener('click', checkCity);
 
 function checkCity() {
   if (!selCity) {
-    // Pas de ville sélectionnée dans le dropdown
     dispoRes.style.display = 'block';
-    dispoRes.innerHTML = '<span style="color:#6B7280">Veuillez sélectionner une ville dans la liste ci-dessous.</span>';
-    // Relancer la recherche si ya du texte
+    dispoRes.innerHTML = '<span style="color:#6B7280">Veuillez s\u00e9lectionner une ville dans la liste ci-dessous.</span>';
     var q = cityInput.value.trim();
     if (q.length >= 2) {
       fetch('https://geo.api.gouv.fr/communes?nom=' + encodeURIComponent(q) + '&fields=nom,codesPostaux&boost=population&limit=8')
@@ -621,13 +599,9 @@ function selectAddr(addr, dpe) {
   placeMarkers();
   renderList();
   if (selAddr) {
-    // Fly to marker on map (after markers are redrawn)
     if (dpe.latitude && dpe.longitude) {
-      setTimeout(function(){
-        lmap.flyTo([dpe.latitude, dpe.longitude], 17, {duration:0.8});
-      }, 50);
+      setTimeout(function(){ lmap.flyTo([dpe.latitude, dpe.longitude], 17, {duration:0.8}); }, 50);
     }
-    // Scroll list card into view
     setTimeout(function(){
       var el = document.getElementById('c-'+dpe.id);
       if (el) el.scrollIntoView({behavior:'smooth', block:'center'});
@@ -645,7 +619,6 @@ function renderList() {
     var tT = on ? 'background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.2)' : 'background:#F3F4F6;color:#6B7280;border:1px solid #E5E7EB';
     var tE = on ? 'background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.2)' : 'background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE';
     html += '<div id="c-'+d.id+'" class="sig-card'+(on?' on':'')+'" onclick="selectAddr(\''+d.adresse.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\',' + JSON.stringify(d) + ')">';
-    
     html += '<div class="sig-info">';
     html += '<div class="sig-date">'+fmtDate(d.date_etablissement)+'</div>';
     html += '<div class="sig-addr">'+d.adresse+'</div>';
@@ -663,37 +636,27 @@ window.addEventListener('load', function() {
   L.control.zoom({position:'topleft'}).addTo(lmap);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(lmap);
 
-  // Chargement de la config depuis Supabase
   fetch(SB_URL + '/rest/v1/landing_config?id=eq.default&select=*', {
     headers:{apikey:SB_KEY,'Authorization':'Bearer '+SB_KEY}
   })
   .then(function(r){ return r.json(); })
   .then(function(data) {
     var cfg = (data && data[0]) ? data[0] : {
-      ville: 'Toulon',
-      codes_postaux: ['83000','83100','83200'],
-      latitude: 43.1242,
-      longitude: 5.9280,
-      zoom: 13,
-      jours: 15
+      ville: 'Toulon', codes_postaux: ['83000','83100','83200'],
+      latitude: 43.1242, longitude: 5.9280, zoom: 13, jours: 15
     };
-    // Mise à jour du badge
     document.getElementById('map-ville-badge').textContent = cfg.ville + ' · ' + cfg.codes_postaux[0];
     document.getElementById('map-count').textContent = 'Chargement...';
-    // Centre la carte
     lmap.setView([cfg.latitude, cfg.longitude], cfg.zoom);
-    // Charge les signaux
     loadSigs(cfg);
   })
   .catch(function() {
-    // Fallback Toulon si la config échoue
     var cfg = {ville:'Toulon', codes_postaux:['83000','83100','83200'], latitude:43.1242, longitude:5.9280, zoom:13, jours:15};
     document.getElementById('map-ville-badge').textContent = 'Toulon · 83000';
     lmap.setView([cfg.latitude, cfg.longitude], cfg.zoom);
     loadSigs(cfg);
   });
 });
-
 
 // PHONE FORMATTING
 var phoneInput = document.getElementById('phone-input');
@@ -713,7 +676,7 @@ document.querySelectorAll('a[href^="#"]').forEach(function(a) {
     var target = document.querySelector(href);
     if (target) {
       e.preventDefault();
-      var offset = 80; // nav height
+      var offset = 80;
       var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
       window.scrollTo({ top: top, behavior: 'smooth' });
     }
