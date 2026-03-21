@@ -219,7 +219,6 @@ export default function ProspectionPage() {
     if (!access) return
     const existing = getPro(dpeId)
     const updated = { ...existing, [field]: value }
-    // Optimistic update — met à jour localement immédiatement
     setProspections(prev => ({ ...prev, [dpeId]: { ...updated, dpe_id: dpeId, user_id: access.userId } }))
     const payload = {
       dpe_id: dpeId,
@@ -276,13 +275,13 @@ export default function ProspectionPage() {
                 <stop offset="100%" stopColor="#1A4DC8"/>
               </linearGradient>
             </defs>
-            <polyline points="4,18 9,18 11,12 14,22 17,10 20,20 23,18 28,18" fill="none" stroke="#60A5FA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <polyline points="4,18 9,18 11,12 14,22 17,10 20,20 23,18 28,18" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span style={{ fontFamily: 'var(--font-jakarta), sans-serif', fontWeight: 800, fontSize: 20, color: '#0A2880', letterSpacing: -0.5 }}>immopulse</span>
+          <span style={{ fontFamily: 'var(--font-jakarta), sans-serif', fontWeight: 800, fontSize: 22, color: '#0A2880', letterSpacing: -0.5 }}>immopulse</span>
         </div>
 
-        {/* Desktop buttons */}
-        <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {/* Desktop buttons — toujours à droite */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }} className="desktop-nav">
           <button onClick={logout} style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, border: '1.5px solid #E8EAED', color: '#6B7280', background: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
             Déconnexion
           </button>
@@ -292,10 +291,9 @@ export default function ProspectionPage() {
         </div>
 
         {/* Mobile hamburger */}
-        <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
+        <div className="mobile-nav" style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
           <button onClick={() => setShowMobileMenu(!showMobileMenu)}
-            style={{ width: 36, height: 36, borderRadius: 10, border: '1.5px solid #E8EAED', background: '#fff', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}
-            className="mobile-nav">
+            style={{ width: 36, height: 36, borderRadius: 10, border: '1.5px solid #E8EAED', background: '#fff', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
             <div style={{ width: 16, height: 1.5, background: '#6B7280', borderRadius: 2 }}/>
             <div style={{ width: 16, height: 1.5, background: '#6B7280', borderRadius: 2 }}/>
             <div style={{ width: 16, height: 1.5, background: '#6B7280', borderRadius: 2 }}/>
@@ -316,8 +314,11 @@ export default function ProspectionPage() {
       </div>
 
       <style>{`
-        @media (min-width: 768px) { .mobile-nav { display: none !important; } }
-        @media (max-width: 767px) { .desktop-nav { display: none !important; } }
+        .mobile-nav { display: none !important; }
+        @media (max-width: 767px) {
+          .mobile-nav { display: flex !important; }
+          .desktop-nav { display: none !important; }
+        }
       `}</style>
 
       <div style={{ maxWidth: 1400, margin: '0 auto', padding: '20px 16px 80px' }}>

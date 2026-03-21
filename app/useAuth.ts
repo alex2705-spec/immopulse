@@ -6,6 +6,7 @@ export type UserAccess = {
   userId: string
   email: string
   codesPostaux: string[]
+  featureGeoloc: boolean
 }
 
 export function useAuth() {
@@ -22,10 +23,10 @@ export function useAuth() {
         return
       }
 
-      // Récupérer les codes postaux attribués
+      // Récupérer les codes postaux + features attribués
       const { data: rows } = await supabase
         .from('user_access')
-        .select('code_postal')
+        .select('code_postal, feature_geoloc')
         .eq('user_id', session.user.id)
 
       if (!rows || rows.length === 0) {
@@ -38,6 +39,7 @@ export function useAuth() {
         userId: session.user.id,
         email: session.user.email || '',
         codesPostaux: rows.map(r => r.code_postal),
+        featureGeoloc: rows.some(r => r.feature_geoloc === true),
       })
       setLoading(false)
     }
