@@ -21,6 +21,7 @@ type DPE = {
 type Prospection = {
   id?: string
   dpe_id: string
+  user_id?: string
   statut: string
   contact_proprio: string
   autre_contact: string
@@ -77,7 +78,7 @@ function StatutBadge({ dpeId, pro, onUpdate, openDropdown, setOpenDropdown }: {
       </div>
       {open && (
         <div onClick={e => e.stopPropagation()}
-          style={{ position: 'absolute', top: 32, right: 0, background: '#fff', border: '1px solid #E8EAED', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.12)', padding: 4, minWidth: 150, zIndex: 200 }}>
+          style={{ position: 'absolute', top: 32, right: 0, background: '#fff', border: '1px solid #E8EAED', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.12)', padding: 4, minWidth: 150, zIndex: 9999 }}>
           {STATUTS.map(opt => (
             <div key={opt.value}
               onClick={() => { onUpdate('statut', opt.value); setOpenDropdown(null) }}
@@ -133,7 +134,7 @@ function TypeContactCell({ value, onSave, dropdownKey, openDropdown, setOpenDrop
       </div>
       {open && (
         <div onClick={e => e.stopPropagation()}
-          style={{ position: 'absolute', top: 32, left: 0, background: '#fff', border: '1px solid #E8EAED', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.12)', padding: 4, minWidth: 150, zIndex: 200 }}>
+          style={{ position: 'absolute', top: 32, left: 0, background: '#fff', border: '1px solid #E8EAED', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.12)', padding: 4, minWidth: 150, zIndex: 9999 }}>
           {TYPES_CONTACT.map(opt => (
             <div key={opt.label}
               onClick={() => { if (opt.label === 'Autre') { setCustom(true); setOpenDropdown(null) } else { onSave(opt.label); setOpenDropdown(null) } }}
@@ -184,6 +185,7 @@ export default function ProspectionPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [page, setPage] = useState(0)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
   const PAGE_SIZE = 20
 
   useEffect(() => {
@@ -216,20 +218,23 @@ export default function ProspectionPage() {
   const handleUpdate = useCallback(async (dpeId: string, field: string, value: string) => {
     if (!access) return
     const existing = getPro(dpeId)
-    const payload: any = {
+    const updated = { ...existing, [field]: value }
+    // Optimistic update — met à jour localement immédiatement
+    setProspections(prev => ({ ...prev, [dpeId]: { ...updated, dpe_id: dpeId, user_id: access.userId } }))
+    const payload = {
       dpe_id: dpeId,
       user_id: access.userId,
-      statut: existing.statut,
-      contact_proprio: existing.contact_proprio,
-      autre_contact: existing.autre_contact,
-      note: existing.note,
+      statut: updated.statut,
+      contact_proprio: updated.contact_proprio,
+      autre_contact: updated.autre_contact,
+      note: updated.note,
       updated_at: new Date().toISOString(),
-      [field]: value,
     }
-    const { data } = await supabase.from('prospection')
+    const { data, error } = await supabase.from('prospection')
       .upsert(payload, { onConflict: 'dpe_id,user_id' })
       .select().single()
     if (data) setProspections(prev => ({ ...prev, [dpeId]: data }))
+    if (error) console.error('Erreur sauvegarde:', error)
   }, [getPro, access])
 
   if (authLoading) return (
@@ -257,13 +262,13 @@ export default function ProspectionPage() {
   }
 
   return (
-    <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#F0F4FF', minHeight: '100vh' }}
-      onClick={() => setOpenDropdown(null)}>
+    <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#F0F4FF', minHeight: '100vh', overflowX: 'hidden' }}
+      onClick={() => { setOpenDropdown(null); setShowMobileMenu(false) }}>
 
       {/* TOPBAR */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #E8EAED', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
+      <div style={{ background: '#fff', borderBottom: '1px solid #E8EAED', padding: '0 16px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+          <svg width="28" height="28" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
             <rect width="32" height="32" rx="8" fill="url(#logo-grad-p)"/>
             <defs>
               <linearGradient id="logo-grad-p" x1="0" y1="0" x2="32" y2="32">
@@ -273,16 +278,11 @@ export default function ProspectionPage() {
             </defs>
             <polyline points="4,18 9,18 11,12 14,22 17,10 20,20 23,18 28,18" fill="none" stroke="#60A5FA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span style={{ fontFamily: 'var(--font-jakarta), sans-serif', fontWeight: 800, fontSize: 22, color: '#0A2880', letterSpacing: -0.5 }}>immopulse</span>
-          <div style={{ display: 'flex', gap: 6 }}>
-            {access?.codesPostaux.map(cp => (
-              <span key={cp} style={{ fontSize: 12, fontWeight: 600, color: '#2260E8', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 100, padding: '2px 10px' }}>
-                {cp}
-              </span>
-            ))}
-          </div>
+          <span style={{ fontFamily: 'var(--font-jakarta), sans-serif', fontWeight: 800, fontSize: 20, color: '#0A2880', letterSpacing: -0.5 }}>immopulse</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+
+        {/* Desktop buttons */}
+        <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button onClick={logout} style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, border: '1.5px solid #E8EAED', color: '#6B7280', background: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
             Déconnexion
           </button>
@@ -290,16 +290,44 @@ export default function ProspectionPage() {
             Voir la carte
           </Link>
         </div>
+
+        {/* Mobile hamburger */}
+        <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
+          <button onClick={() => setShowMobileMenu(!showMobileMenu)}
+            style={{ width: 36, height: 36, borderRadius: 10, border: '1.5px solid #E8EAED', background: '#fff', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}
+            className="mobile-nav">
+            <div style={{ width: 16, height: 1.5, background: '#6B7280', borderRadius: 2 }}/>
+            <div style={{ width: 16, height: 1.5, background: '#6B7280', borderRadius: 2 }}/>
+            <div style={{ width: 16, height: 1.5, background: '#6B7280', borderRadius: 2 }}/>
+          </button>
+          {showMobileMenu && (
+            <div style={{ position: 'absolute', top: 44, right: 0, background: '#fff', border: '1px solid #E8EAED', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', padding: 8, zIndex: 99999, minWidth: 180 }}>
+              <Link href="/carte" onClick={() => setShowMobileMenu(false)}
+                style={{ display: 'block', padding: '10px 14px', borderRadius: 10, fontSize: 14, fontWeight: 500, color: '#111', textDecoration: 'none', marginBottom: 4 }}>
+                Voir la carte
+              </Link>
+              <button onClick={() => { setShowMobileMenu(false); logout() }}
+                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px', borderRadius: 10, fontSize: 14, fontWeight: 500, color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
+                Déconnexion
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 24px 80px' }}>
-        <div style={{ marginBottom: 24 }}>
-          <h1 style={{ fontSize: 28, fontWeight: 400, color: '#111', margin: 0, fontFamily: 'DM Serif Display, serif' }}>Espace Prospection</h1>
+      <style>{`
+        @media (min-width: 768px) { .mobile-nav { display: none !important; } }
+        @media (max-width: 767px) { .desktop-nav { display: none !important; } }
+      `}</style>
+
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '20px 16px 80px' }}>
+        <div style={{ marginBottom: 20 }}>
+          <h1 style={{ fontSize: 26, fontWeight: 400, color: '#111', margin: 0, fontFamily: 'DM Serif Display, serif' }}>Espace Prospection</h1>
           <p style={{ fontSize: 14, color: '#9CA3AF', margin: '6px 0 0' }}>{dpesEnFavoris.length} bien{dpesEnFavoris.length > 1 ? 's' : ''} en suivi</p>
         </div>
 
-        {/* STATS */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+        {/* STATS — 2x2 grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginBottom: 20 }}>
           {[
             { label: 'À visiter',     value: stats.aVisiter,     color: '#6B7280', statut: 'a_visiter' },
             { label: 'À recontacter', value: stats.aRecontacter, color: '#92400E', statut: 'a_recontacter' },
@@ -308,8 +336,8 @@ export default function ProspectionPage() {
           ].map(stat => (
             <div key={stat.label}
               onClick={() => setFilterStatut(filterStatut === stat.statut ? null : stat.statut)}
-              style={{ background: '#fff', border: filterStatut === stat.statut ? `2px solid ${stat.color}` : '1px solid #E8EAED', borderRadius: 14, padding: '16px 20px', cursor: 'pointer', transition: 'all .15s' }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: stat.color }}>{stat.value}</div>
+              style={{ background: '#fff', border: filterStatut === stat.statut ? `2px solid ${stat.color}` : '1px solid #E8EAED', borderRadius: 14, padding: '14px 18px', cursor: 'pointer', transition: 'all .15s' }}>
+              <div style={{ fontSize: 26, fontWeight: 700, color: stat.color }}>{stat.value}</div>
               <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 2 }}>{stat.label}</div>
             </div>
           ))}
