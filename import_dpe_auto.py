@@ -43,7 +43,7 @@ def lambert93_to_wgs84(x, y):
 
 def fetch_dpe(cp):
     r = requests.get(ADEME_URL, params={
-        "size": 60,
+        "size": 150,
         "q": cp,
         "q_fields": "code_postal_ban",
         "select": FIELDS,
