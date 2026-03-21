@@ -231,35 +231,34 @@ export default function CartePage() {
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'DM Sans, sans-serif' }}>
 
 {/* TOPBAR */}
-<div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-  <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-    <rect width="32" height="32" rx="8" fill="url(#logo-grad)"/>
-    <defs>
-      <linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32">
-        <stop offset="0%" stopColor="#0A2880"/>
-        <stop offset="100%" stopColor="#1A4DC8"/>
-      </linearGradient>
-    </defs>
-    <polyline points="4,18 9,18 11,12 14,22 17,10 20,20 23,18 28,18" fill="none" stroke="#60A5FA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-  <span style={{ fontFamily: 'var(--font-jakarta), sans-serif', fontWeight: 800, fontSize: 22, color: '#0A2880', letterSpacing: -0.5 }}>immopulse</span>
-  <div style={{ display: 'flex', gap: 6 }}>
-    {access?.codesPostaux.map(cp => (
-      <span key={cp} style={{ fontSize: 12, fontWeight: 600, color: '#2260E8', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 100, padding: '2px 10px' }}>
-        {cp}
-      </span>
-    ))}
+<div style={{ height: 64, flexShrink: 0, background: '#fff', borderBottom: '1px solid #E8EAED', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', zIndex: 500 }}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="8" fill="url(#logo-grad)"/>
+      <defs>
+        <linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32">
+          <stop offset="0%" stopColor="#0A2880"/>
+          <stop offset="100%" stopColor="#1A4DC8"/>
+        </linearGradient>
+      </defs>
+      <polyline points="4,18 9,18 11,12 14,22 17,10 20,20 23,18 28,18" fill="none" stroke="#60A5FA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+    <span style={{ fontFamily: 'var(--font-jakarta), sans-serif', fontWeight: 800, fontSize: 22, color: '#0A2880', letterSpacing: -0.5 }}>immopulse</span>
+    <div style={{ display: 'flex', gap: 6 }}>
+      {access?.codesPostaux.map(cp => (
+        <span key={cp} style={{ fontSize: 12, fontWeight: 600, color: '#2260E8', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 100, padding: '2px 10px' }}>
+          {cp}
+        </span>
+      ))}
+    </div>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <button onClick={logout} style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, border: '1.5px solid #E8EAED', color: '#6B7280', background: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
+      Déconnexion
+    </button>
+    <Link href="/prospection" style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, border: '1.5px solid #E8EAED', color: '#6B7280', textDecoration: 'none' }}>Espace Prospection</Link>
   </div>
 </div>
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button onClick={logout} style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, border: '1.5px solid #E8EAED', color: '#6B7280', background: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
-            Déconnexion
-          </button>
-          <Link href="/prospection" style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, border: '1.5px solid #E8EAED', color: '#6B7280', textDecoration: 'none' }}>Espace Prospection</Link>
-        </div>
-      </div>
 
       {/* FILTER BAR */}
       <div onClick={e => e.stopPropagation()} style={{ height: 60, flexShrink: 0, background: '#fff', borderBottom: '1px solid #E8EAED', display: 'flex', alignItems: 'center', gap: 8, padding: '0 24px', overflowX: 'auto', zIndex: 500 }}>
