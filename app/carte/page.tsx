@@ -233,9 +233,9 @@ export default function CartePage() {
 {/* TOPBAR */}
 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
   <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-    <rect width="32" height="32" rx="8" fill="url(#g)"/>
+    <rect width="32" height="32" rx="8" fill="url(#logo-grad)"/>
     <defs>
-      <linearGradient id="g" x1="0" y1="0" x2="32" y2="32">
+      <linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32">
         <stop offset="0%" stopColor="#0A2880"/>
         <stop offset="100%" stopColor="#1A4DC8"/>
       </linearGradient>
