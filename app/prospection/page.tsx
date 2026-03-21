@@ -59,8 +59,6 @@ function formatDateFR(dateStr: string | null): string {
   return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`
 }
 
-const CLIENT_ID = '00000000-0000-0000-0000-000000000001'
-
 function StatutBadge({ dpeId, pro, onUpdate, openDropdown, setOpenDropdown }: {
   dpeId: string, pro: Prospection,
   onUpdate: (field: string, value: string) => void,
@@ -106,7 +104,6 @@ function TypeContactCell({ value, onSave, dropdownKey, openDropdown, setOpenDrop
   const [custom, setCustom] = useState(false)
   const [localVal, setLocalVal] = useState(value)
   useEffect(() => { setLocalVal(value) }, [value])
-
   const typeInfo = TYPES_CONTACT.find(t => t.label === value)
 
   if (custom) return (
@@ -126,13 +123,9 @@ function TypeContactCell({ value, onSave, dropdownKey, openDropdown, setOpenDrop
         onMouseEnter={e => e.currentTarget.style.background = '#F7F8FA'}
         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
         {value && typeInfo ? (
-          <span style={{ padding: '3px 10px', borderRadius: 100, fontSize: 11, fontWeight: 600, background: typeInfo.bg, color: typeInfo.color }}>
-            {value}
-          </span>
+          <span style={{ padding: '3px 10px', borderRadius: 100, fontSize: 11, fontWeight: 600, background: typeInfo.bg, color: typeInfo.color }}>{value}</span>
         ) : value ? (
-          <span style={{ padding: '3px 10px', borderRadius: 100, fontSize: 11, fontWeight: 600, background: '#F9FAFB', color: '#9CA3AF' }}>
-            {value}
-          </span>
+          <span style={{ padding: '3px 10px', borderRadius: 100, fontSize: 11, fontWeight: 600, background: '#F9FAFB', color: '#9CA3AF' }}>{value}</span>
         ) : (
           <span style={{ fontSize: 12, color: '#C4C4C4' }}>Choisir...</span>
         )}
@@ -182,7 +175,7 @@ function TextCell({ value, placeholder, onSave }: { value: string, placeholder: 
 }
 
 export default function ProspectionPage() {
-  const { logout } = useAuth()
+  const { access, loading: authLoading, logout } = useAuth()
   const [dpes, setDpes] = useState<DPE[]>([])
   const [prospections, setProspections] = useState<Record<string, Prospection>>({})
   const [loading, setLoading] = useState(true)
@@ -194,14 +187,19 @@ export default function ProspectionPage() {
   const PAGE_SIZE = 20
 
   useEffect(() => {
+    if (!access) return
     async function load() {
       setLoading(true)
       const { data: dpeData } = await supabase
-        .from('dpes').select('id,adresse,code_postal,ville,classe_dpe,surface_habitable,etage,type_batiment,date_etablissement')
-        .eq('code_postal', '06400')
+        .from('dpes')
+        .select('id,adresse,code_postal,ville,classe_dpe,surface_habitable,etage,type_batiment,date_etablissement')
+        .in('code_postal', access!.codesPostaux)
         .order('date_etablissement', { ascending: false })
         .limit(500)
-      const { data: proData } = await supabase.from('prospection').select('*')
+      const { data: proData } = await supabase
+        .from('prospection')
+        .select('*')
+        .eq('user_id', access!.userId)
       setDpes(dpeData || [])
       const proMap: Record<string, Prospection> = {}
       ;(proData || []).forEach((p: any) => { proMap[p.dpe_id] = p })
@@ -209,17 +207,18 @@ export default function ProspectionPage() {
       setLoading(false)
     }
     load()
-  }, [])
+  }, [access])
 
   const getPro = useCallback((dpeId: string): Prospection => {
     return prospections[dpeId] || { dpe_id: dpeId, statut: 'a_visiter', contact_proprio: '', autre_contact: '', note: '' }
   }, [prospections])
 
   const handleUpdate = useCallback(async (dpeId: string, field: string, value: string) => {
+    if (!access) return
     const existing = getPro(dpeId)
     const payload: any = {
       dpe_id: dpeId,
-      client_id: CLIENT_ID,
+      user_id: access.userId,
       statut: existing.statut,
       contact_proprio: existing.contact_proprio,
       autre_contact: existing.autre_contact,
@@ -228,10 +227,16 @@ export default function ProspectionPage() {
       [field]: value,
     }
     const { data } = await supabase.from('prospection')
-      .upsert(payload, { onConflict: 'dpe_id,client_id' })
+      .upsert(payload, { onConflict: 'dpe_id,user_id' })
       .select().single()
     if (data) setProspections(prev => ({ ...prev, [dpeId]: data }))
-  }, [getPro])
+  }, [getPro, access])
+
+  if (authLoading) return (
+    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans, sans-serif', color: '#6B7280' }}>
+      Chargement...
+    </div>
+  )
 
   const dpesEnFavoris = dpes.filter(dpe => favoris.has(dpe.id))
   const dpesFiltered = dpesEnFavoris.filter(dpe => {
@@ -240,9 +245,9 @@ export default function ProspectionPage() {
     if (searchQuery && !dpe.adresse.toLowerCase().includes(searchQuery.toLowerCase())) return false
     return true
   })
-const totalPages = Math.ceil(dpesFiltered.length / PAGE_SIZE)
-const currentPage = page >= totalPages ? Math.max(0, totalPages - 1) : page
-const dpesAffiches = dpesFiltered.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE)
+  const totalPages = Math.ceil(dpesFiltered.length / PAGE_SIZE)
+  const currentPage = page >= totalPages ? Math.max(0, totalPages - 1) : page
+  const dpesAffiches = dpesFiltered.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE)
 
   const stats = {
     aVisiter:     dpesEnFavoris.filter(d => getPro(d.id).statut === 'a_visiter').length,
@@ -257,31 +262,37 @@ const dpesAffiches = dpesFiltered.slice(currentPage * PAGE_SIZE, (currentPage + 
 
       {/* TOPBAR */}
       <div style={{ background: '#fff', borderBottom: '1px solid #E8EAED', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
-  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-      <rect width="32" height="32" rx="8" fill="url(#logo-grad-p)"/>
-      <defs>
-        <linearGradient id="logo-grad-p" x1="0" y1="0" x2="32" y2="32">
-          <stop offset="0%" stopColor="#0A2880"/>
-          <stop offset="100%" stopColor="#1A4DC8"/>
-        </linearGradient>
-      </defs>
-      <polyline points="4,18 9,18 11,12 14,22 17,10 20,20 23,18 28,18" fill="none" stroke="#60A5FA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-    <span style={{ fontFamily: 'var(--font-jakarta), sans-serif', fontWeight: 800, fontSize: 22, color: '#0A2880', letterSpacing: -0.5 }}>immopulse</span>
-  </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="8" fill="url(#logo-grad-p)"/>
+            <defs>
+              <linearGradient id="logo-grad-p" x1="0" y1="0" x2="32" y2="32">
+                <stop offset="0%" stopColor="#0A2880"/>
+                <stop offset="100%" stopColor="#1A4DC8"/>
+              </linearGradient>
+            </defs>
+            <polyline points="4,18 9,18 11,12 14,22 17,10 20,20 23,18 28,18" fill="none" stroke="#60A5FA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span style={{ fontFamily: 'var(--font-jakarta), sans-serif', fontWeight: 800, fontSize: 22, color: '#0A2880', letterSpacing: -0.5 }}>immopulse</span>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {access?.codesPostaux.map(cp => (
+              <span key={cp} style={{ fontSize: 12, fontWeight: 600, color: '#2260E8', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 100, padding: '2px 10px' }}>
+                {cp}
+              </span>
+            ))}
+          </div>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-  <button onClick={logout} style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, border: '1.5px solid #E8EAED', color: '#6B7280', background: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
-  Déconnexion
-</button>
-  <Link href="/carte" style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, background: 'linear-gradient(135deg,#0A2880,#1A4DC8)', color: '#fff', textDecoration: 'none' }}>
-    Voir la carte
-  </Link>
-</div>
+          <button onClick={logout} style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, border: '1.5px solid #E8EAED', color: '#6B7280', background: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
+            Déconnexion
+          </button>
+          <Link href="/carte" style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, background: 'linear-gradient(135deg,#0A2880,#1A4DC8)', color: '#fff', textDecoration: 'none' }}>
+            Voir la carte
+          </Link>
+        </div>
       </div>
 
       <div style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 24px 80px' }}>
-
         <div style={{ marginBottom: 24 }}>
           <h1 style={{ fontSize: 28, fontWeight: 400, color: '#111', margin: 0, fontFamily: 'DM Serif Display, serif' }}>Espace Prospection</h1>
           <p style={{ fontSize: 14, color: '#9CA3AF', margin: '6px 0 0' }}>{dpesEnFavoris.length} bien{dpesEnFavoris.length > 1 ? 's' : ''} en suivi</p>
@@ -351,35 +362,28 @@ const dpesAffiches = dpesFiltered.slice(currentPage * PAGE_SIZE, (currentPage + 
                         style={{ borderBottom: i < dpesAffiches.length - 1 ? '1px solid #F3F4F6' : 'none', background: '#fff', transition: 'background .15s' }}
                         onMouseEnter={e => e.currentTarget.style.background = '#FAFBFF'}
                         onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
-
                         <td style={{ padding: '10px 14px', minWidth: 180 }}>
                           <div style={{ fontSize: 13, fontWeight: 600, color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 220 }}>{dpe.adresse}</div>
                           <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1 }}>{dpe.ville}</div>
                         </td>
-
                         <td style={{ padding: '10px 14px' }}>
                           <div style={{ width: 36, height: 42, borderRadius: 8, background: colors.bg, color: colors.text, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
                             <span style={{ fontSize: 16, fontWeight: 700, lineHeight: 1 }}>{dpe.classe_dpe || '?'}</span>
                             <span style={{ fontSize: 8, opacity: 0.7 }}>DPE</span>
                           </div>
                         </td>
-
                         <td style={{ padding: '10px 14px', fontSize: 13, color: '#374151', whiteSpace: 'nowrap' }}>
                           {dpe.surface_habitable ? `${Math.round(dpe.surface_habitable)} m²` : '—'}
                         </td>
-
                         <td style={{ padding: '10px 14px', fontSize: 13, color: '#374151' }}>
                           {dpe.etage && dpe.etage !== '0' ? `${dpe.etage}e` : '—'}
                         </td>
-
                         <td style={{ padding: '10px 14px', fontSize: 12, color: '#6B7280', whiteSpace: 'nowrap' }}>
                           {dpe.type_batiment ? dpe.type_batiment.charAt(0).toUpperCase() + dpe.type_batiment.slice(1) : '—'}
                         </td>
-
                         <td style={{ padding: '10px 14px', fontSize: 12, color: '#9CA3AF', whiteSpace: 'nowrap' }}>
                           {formatDateFR(dpe.date_etablissement)}
                         </td>
-
                         <td style={{ padding: '10px 14px', minWidth: 130 }} onClick={e => e.stopPropagation()}>
                           <TypeContactCell
                             value={pro.contact_proprio}
@@ -389,15 +393,12 @@ const dpesAffiches = dpesFiltered.slice(currentPage * PAGE_SIZE, (currentPage + 
                             setOpenDropdown={setOpenDropdown}
                           />
                         </td>
-
                         <td style={{ padding: '10px 14px', minWidth: 140 }}>
                           <TextCell value={pro.autre_contact} placeholder="Tél / Mail" onSave={v => handleUpdate(dpe.id, 'autre_contact', v)} />
                         </td>
-
                         <td style={{ padding: '10px 14px', minWidth: 180 }}>
                           <TextCell value={pro.note} placeholder="Commentaire" onSave={v => handleUpdate(dpe.id, 'note', v)} />
                         </td>
-
                         <td style={{ padding: '10px 14px' }} onClick={e => e.stopPropagation()}>
                           <StatutBadge
                             dpeId={dpe.id}
@@ -407,7 +408,6 @@ const dpesAffiches = dpesFiltered.slice(currentPage * PAGE_SIZE, (currentPage + 
                             setOpenDropdown={setOpenDropdown}
                           />
                         </td>
-
                         <td style={{ padding: '10px 14px' }}>
                           <button onClick={() => toggleFavori(dpe.id)}
                             style={{ width: 28, height: 28, borderRadius: '50%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.4 }}
@@ -423,7 +423,6 @@ const dpesAffiches = dpesFiltered.slice(currentPage * PAGE_SIZE, (currentPage + 
                 </tbody>
               </table>
             </div>
-
             {totalPages > 1 && (
               <div style={{ display: 'flex', justifyContent: 'center', gap: 8, padding: '16px', borderTop: '1px solid #E8EAED' }}>
                 {Array.from({ length: totalPages }, (_, i) => (
