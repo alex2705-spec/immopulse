@@ -231,20 +231,25 @@ export default function CartePage() {
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'DM Sans, sans-serif' }}>
 
 {/* TOPBAR */}
-      <div style={{ height: 64, flexShrink: 0, background: '#fff', borderBottom: '1px solid #E8EAED', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', zIndex: 500 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg,#2260E8,#1035A0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="#fff"><path d="M8 1a5 5 0 0 1 5 5c0 3.5-5 9-5 9S3 9.5 3 6a5 5 0 0 1 5-5zm0 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
-          </div>
-          <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: -0.5, color: '#111', fontFamily: 'var(--font-jakarta), sans-serif' }}>immopulse</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 100, padding: '5px 14px' }}>
-            <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#2260E8' }}/>
-            <div style={{ display: 'flex', gap: 6 }}>
-  {access?.codesPostaux.map(cp => (
-    <span key={cp} style={{ fontSize: 12, fontWeight: 600, color: '#2260E8', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 100, padding: '2px 10px' }}>
-      {cp}
-    </span>
-  ))}
+<div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+  <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+    <rect width="32" height="32" rx="8" fill="url(#g)"/>
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="32" y2="32">
+        <stop offset="0%" stopColor="#0A2880"/>
+        <stop offset="100%" stopColor="#1A4DC8"/>
+      </linearGradient>
+    </defs>
+    <polyline points="4,18 9,18 11,12 14,22 17,10 20,20 23,18 28,18" fill="none" stroke="#60A5FA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+  <span style={{ fontFamily: 'var(--font-jakarta), sans-serif', fontWeight: 800, fontSize: 22, color: '#0A2880', letterSpacing: -0.5 }}>immopulse</span>
+  <div style={{ display: 'flex', gap: 6 }}>
+    {access?.codesPostaux.map(cp => (
+      <span key={cp} style={{ fontSize: 12, fontWeight: 600, color: '#2260E8', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 100, padding: '2px 10px' }}>
+        {cp}
+      </span>
+    ))}
+  </div>
 </div>
           </div>
         </div>
