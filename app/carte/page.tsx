@@ -347,7 +347,7 @@ export default function CartePage() {
       </div>
 
       {/* FILTER BAR */}
-      <div onClick={e => e.stopPropagation()} style={{ height: 54, flexShrink: 0, background: '#fff', borderBottom: '1px solid #E8EAED', display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px', overflowX: 'auto', overflowY: 'hidden', zIndex: 500, WebkitOverflowScrolling: 'touch' as any }}>
+      <div onClick={e => e.stopPropagation()} style={{ height: 54, flexShrink: 0, background: '#fff', borderBottom: '1px solid #E8EAED', display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px', overflowX: 'auto', overflowY: 'hidden', zIndex: 490, WebkitOverflowScrolling: 'touch' as any }}>
         {['A','B','C','D','E','F','G'].map(c => {
           const colors = DPE_COLORS[c]; const active = filterClasse.includes(c)
           return (
