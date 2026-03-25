@@ -100,20 +100,16 @@ def main():
     for cp in codes:
         print(f"\n📍 {cp}...")
 
-        requests.delete(
-            f"{SB_URL}/rest/v1/dpes?code_postal=eq.{cp}",
-            headers=HEADERS_SB,
-            timeout=15
-        )
-
         items = fetch_dpe(cp)
         rows = [r for r in [transform(i, cp) for i in items] if r]
-        print(f"  → {len(rows)} DPE avec GPS")
+        print(f"  → {len(rows)} DPE récupérés")
 
         if rows:
+            # Upsert : insère les nouveaux, ignore les existants
+            upsert_headers = {**HEADERS_SB, "Prefer": "resolution=ignore-duplicates"}
             resp = requests.post(
-                f"{SB_URL}/rest/v1/dpes",
-                headers=HEADERS_SB,
+                f"{SB_URL}/rest/v1/dpes?on_conflict=numero_dpe",
+                headers=upsert_headers,
                 json=rows,
                 timeout=30
             )
