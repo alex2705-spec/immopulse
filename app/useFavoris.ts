@@ -1,31 +1,60 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-
-const STORAGE_KEY = 'sigmap_favoris'
+import { supabase } from './supabase'
 
 export function useFavoris() {
   const [favoris, setFavoris] = useState<Set<string>>(new Set())
+  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        setFavoris(new Set(JSON.parse(stored)))
-      }
-    } catch {}
+    async function load() {
+      const { data: { session } } = await supabase.auth.getSession()
+      console.log('[useFavoris] session:', session?.user?.id)
+      if (!session) return
+      const uid = session.user.id
+      setUserId(uid)
+
+      const { data, error } = await supabase
+        .from('favoris')
+        .select('dpe_id')
+        .eq('client_id', uid)
+
+      console.log('[useFavoris] load:', data, error)
+      if (data) setFavoris(new Set(data.map((r: any) => r.dpe_id)))
+    }
+    load()
   }, [])
 
-  function toggleFavori(id: string) {
+  async function toggleFavori(id: string) {
+    if (!userId) {
+      console.log('[useFavoris] no userId!')
+      return
+    }
+
+    const isFav = favoris.has(id)
+    console.log('[useFavoris] toggle', id, 'isFav:', isFav, 'userId:', userId)
+
     setFavoris(prev => {
       const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
+      if (isFav) next.delete(id)
       else next.add(id)
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify([...next]))
-      } catch {}
       return next
     })
+
+    if (isFav) {
+      const { error } = await supabase
+        .from('favoris')
+        .delete()
+        .eq('client_id', userId)
+        .eq('dpe_id', id)
+      console.log('[useFavoris] delete error:', error)
+    } else {
+      const { data, error } = await supabase
+        .from('favoris')
+        .insert({ client_id: userId, dpe_id: id })
+      console.log('[useFavoris] insert data:', data, 'error:', error)
+    }
   }
 
   return { favoris, toggleFavori }
