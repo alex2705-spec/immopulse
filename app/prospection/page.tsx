@@ -287,7 +287,7 @@ export default function ProspectionPage() {
   }
 
   return (
-    <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#F0F4FF', overflowX: 'hidden' }}
+    <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#F0F4FF', minHeight: '100vh', overflowX: 'hidden' }}
       onClick={() => { setOpenDropdown(null); setShowMobileMenu(false) }}>
 
       {/* TOPBAR */}
