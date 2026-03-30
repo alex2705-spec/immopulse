@@ -30,3 +30,18 @@ body {
   height: 100%;
   width: 100%;
 }
+
+@media (max-width: 767px) {
+  html, body {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overscroll-behavior: none;
+  }
+}
+
+:root {
+  --font-dm-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-jakarta: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
