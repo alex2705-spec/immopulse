@@ -328,9 +328,24 @@ export default function CartePage() {
   }, [dpesFiltres, selected, hoveredId, favoris, mapReady])
 
   useEffect(() => {
-    if (selected && mapInstanceRef.current && selected.latitude && selected.longitude)
+    if (!selected || !mapInstanceRef.current || !selected.latitude || !selected.longitude) return
+    if (isMobile) {
+      // Décale vers le haut pour que le pin reste visible au-dessus du drawer (50% écran)
+      const map = mapInstanceRef.current
+      const targetLatLng = [selected.latitude, selected.longitude] as [number, number]
+      map.flyTo(targetLatLng, 17, { duration: 0.8 })
+      // Après le flyTo, offset le centre vers le haut pour compenser le drawer
+      setTimeout(() => {
+        const point = map.latLngToContainerPoint(targetLatLng)
+        const drawerHeight = window.innerHeight * 0.5
+        const offsetPoint = { x: point.x, y: point.y + drawerHeight / 2 - 40 }
+        const newLatLng = map.containerPointToLatLng(offsetPoint as any)
+        map.panTo(newLatLng, { animate: true, duration: 0.3 })
+      }, 900)
+    } else {
       mapInstanceRef.current.flyTo([selected.latitude, selected.longitude], 17, { duration: 0.8 })
-  }, [selected])
+    }
+  }, [selected, isMobile])
 
   if (authLoading) return (
     <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans, sans-serif', color: '#6B7280' }}>
@@ -342,8 +357,8 @@ export default function CartePage() {
     setSelected(dpe)
     if (isMobile) setDrawerOpen(true)
     setTimeout(() => {
-      cardRefs.current[dpe.id]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }, 100)
+      cardRefs.current[dpe.id]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 350)
   }
 
   function openDatePicker() {
@@ -493,7 +508,7 @@ export default function CartePage() {
       onClick={() => { setShowDatePicker(false); setShowAnnonceSearch(false); setShowMobileMenu(false) }}>
 
       {/* TOPBAR */}
-      <div style={{ height: 56, flexShrink: 0, background: '#fff', borderBottom: '1px solid #E8EAED', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 500 }}>
+      <div style={{ height: 56, flexShrink: 0, background: '#fff', borderBottom: '1px solid #E8EAED', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 500, position: 'sticky' as any, top: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <svg width="28" height="28" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
             <rect width="32" height="32" rx="8" fill="url(#logo-grad)"/>
@@ -554,7 +569,7 @@ export default function CartePage() {
       </div>
 
       {/* FILTER BAR */}
-      <div onClick={e => e.stopPropagation()} style={{ height: 54, flexShrink: 0, background: '#fff', borderBottom: '1px solid #E8EAED', display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px', overflowX: 'auto', overflowY: 'hidden', zIndex: 490, WebkitOverflowScrolling: 'touch' as any }}>
+      <div onClick={e => e.stopPropagation()} style={{ height: 54, flexShrink: 0, background: '#fff', borderBottom: '1px solid #E8EAED', display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px', overflowX: 'auto', overflowY: 'hidden', zIndex: 490, WebkitOverflowScrolling: 'touch' as any, position: 'sticky' as any, top: 56 }}>
         {['A','B','C','D','E','F','G'].map(c => {
           const colors = DPE_COLORS[c]; const active = filterClasse.includes(c)
           return (
