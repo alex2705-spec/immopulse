@@ -337,7 +337,7 @@ export default function CartePage() {
       // Après le flyTo, offset le centre vers le haut pour compenser le drawer
       setTimeout(() => {
         const point = map.latLngToContainerPoint(targetLatLng)
-        const drawerHeight = window.innerHeight * 0.5
+        const drawerHeight = window.innerHeight * 0.38
         const offsetPoint = { x: point.x, y: point.y + drawerHeight / 2 - 40 }
         const newLatLng = map.containerPointToLatLng(offsetPoint as any)
         map.panTo(newLatLng, { animate: true, duration: 0.3 })
@@ -643,12 +643,12 @@ export default function CartePage() {
             </button>
           )}
           {mapReady && (
-            <div style={{ position: 'absolute', bottom: drawerOpen ? '45%' : 90, right: 16, background: '#fff', borderRadius: 12, boxShadow: '0 2px 12px rgba(0,0,0,0.15)', border: '1px solid #E8EAED', overflow: 'hidden', zIndex: 1000, transition: 'bottom 0.3s' }}>
+            <div style={{ position: 'absolute', bottom: drawerOpen ? '40%' : 90, right: 16, background: '#fff', borderRadius: 12, boxShadow: '0 2px 12px rgba(0,0,0,0.15)', border: '1px solid #E8EAED', overflow: 'hidden', zIndex: 1000, transition: 'bottom 0.3s' }}>
               <button onClick={() => mapInstanceRef.current?.zoomIn()} style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', border: 'none', borderBottom: '1px solid #E8EAED', cursor: 'pointer', fontSize: 20, color: '#111', fontWeight: 300 }}>+</button>
               <button onClick={() => mapInstanceRef.current?.zoomOut()} style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', border: 'none', cursor: 'pointer', fontSize: 20, color: '#111', fontWeight: 300 }}>−</button>
             </div>
           )}
-          <div ref={drawerRef} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: drawerOpen ? '50%' : '0%', background: '#fff', borderRadius: '20px 20px 0 0', boxShadow: '0 -4px 24px rgba(0,0,0,0.12)', transition: 'height 0.3s ease', zIndex: 1000, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <div ref={drawerRef} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: drawerOpen ? '38%' : '0%', background: '#fff', borderRadius: '20px 20px 0 0', boxShadow: '0 -4px 24px rgba(0,0,0,0.12)', transition: 'height 0.3s ease', zIndex: 1000, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div style={{ padding: '12px 0 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flexShrink: 0, cursor: 'pointer' }} onClick={() => setDrawerOpen(!drawerOpen)}>
               <div style={{ width: 36, height: 4, borderRadius: 2, background: '#E8EAED' }}/>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 16px' }}>
