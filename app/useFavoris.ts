@@ -7,7 +7,6 @@ export function useFavoris() {
   const [favoris, setFavoris] = useState<Set<string>>(new Set())
   const [userId, setUserId] = useState<string | null>(null)
 
-  // Charger l'userId et les favoris depuis Supabase
   useEffect(() => {
     async function load() {
       const { data: { session } } = await supabase.auth.getSession()
@@ -28,14 +27,17 @@ export function useFavoris() {
   async function toggleFavori(id: string) {
     if (!userId) return
 
+    const isFav = favoris.has(id)
+
+    // Update state immédiatement
     setFavoris(prev => {
       const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
+      if (isFav) next.delete(id)
       else next.add(id)
       return next
     })
 
-    const isFav = favoris.has(id)
+    // Sync Supabase
     if (isFav) {
       await supabase
         .from('favoris')
