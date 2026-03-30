@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { supabase } from '../supabase'
 import { useFavoris } from '../useFavoris'
@@ -69,16 +70,28 @@ function StatutBadge({ dpeId, pro, onUpdate, openDropdown, setOpenDropdown }: {
   const key = dpeId + '_statut'
   const open = openDropdown === key
   const s = STATUTS.find(s => s.value === pro.statut) || STATUTS[0]
+  const btnRef = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState({ top: 0, left: 0 })
+
+  function handleOpen(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect()
+      setPos({ top: r.bottom + 4, left: r.right - 160 })
+    }
+    setOpenDropdown(open ? null : key)
+  }
+
   return (
     <div style={{ position: 'relative' }}>
-      <div onClick={e => { e.stopPropagation(); setOpenDropdown(open ? null : key) }}
+      <div ref={btnRef} onClick={handleOpen}
         style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 100, background: s.bg, color: s.color, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
         <div style={{ width: 6, height: 6, borderRadius: '50%', background: s.dot }}/>
         {s.label}
       </div>
-      {open && (
+      {open && typeof document !== 'undefined' && createPortal(
         <div onClick={e => e.stopPropagation()}
-          style={{ position: 'absolute', top: 32, right: 0, background: '#fff', border: '1px solid #E8EAED', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.12)', padding: 4, minWidth: 150, zIndex: 9999 }}>
+          style={{ position: 'fixed', top: pos.top, left: pos.left, background: '#fff', border: '1px solid #E8EAED', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.12)', padding: 4, minWidth: 160, zIndex: 99999 }}>
           {STATUTS.map(opt => (
             <div key={opt.value}
               onClick={() => { onUpdate('statut', opt.value); setOpenDropdown(null) }}
@@ -89,7 +102,8 @@ function StatutBadge({ dpeId, pro, onUpdate, openDropdown, setOpenDropdown }: {
               {opt.label}
             </div>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
@@ -104,8 +118,19 @@ function TypeContactCell({ value, onSave, dropdownKey, openDropdown, setOpenDrop
   const open = openDropdown === dropdownKey
   const [custom, setCustom] = useState(false)
   const [localVal, setLocalVal] = useState(value)
+  const btnRef = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState({ top: 0, left: 0 })
   useEffect(() => { setLocalVal(value) }, [value])
   const typeInfo = TYPES_CONTACT.find(t => t.label === value)
+
+  function handleOpen(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect()
+      setPos({ top: r.bottom + 4, left: r.left })
+    }
+    setOpenDropdown(open ? null : dropdownKey)
+  }
 
   if (custom) return (
     <input autoFocus value={localVal}
@@ -119,7 +144,7 @@ function TypeContactCell({ value, onSave, dropdownKey, openDropdown, setOpenDrop
 
   return (
     <div style={{ position: 'relative' }}>
-      <div onClick={e => { e.stopPropagation(); setOpenDropdown(open ? null : dropdownKey) }}
+      <div ref={btnRef} onClick={handleOpen}
         style={{ cursor: 'pointer', padding: '2px 4px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4 }}
         onMouseEnter={e => e.currentTarget.style.background = '#F7F8FA'}
         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
@@ -132,9 +157,9 @@ function TypeContactCell({ value, onSave, dropdownKey, openDropdown, setOpenDrop
         )}
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#9CA3AF" strokeWidth="1.5"><path d="M2 3.5l3 3 3-3"/></svg>
       </div>
-      {open && (
+      {open && typeof document !== 'undefined' && createPortal(
         <div onClick={e => e.stopPropagation()}
-          style={{ position: 'absolute', top: 32, left: 0, background: '#fff', border: '1px solid #E8EAED', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.12)', padding: 4, minWidth: 150, zIndex: 9999 }}>
+          style={{ position: 'fixed', top: pos.top, left: pos.left, background: '#fff', border: '1px solid #E8EAED', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.12)', padding: 4, minWidth: 160, zIndex: 99999 }}>
           {TYPES_CONTACT.map(opt => (
             <div key={opt.label}
               onClick={() => { if (opt.label === 'Autre') { setCustom(true); setOpenDropdown(null) } else { onSave(opt.label); setOpenDropdown(null) } }}
@@ -144,7 +169,8 @@ function TypeContactCell({ value, onSave, dropdownKey, openDropdown, setOpenDrop
               <span style={{ fontSize: 12, fontWeight: 600, color: opt.dropdownColor }}>{opt.label}</span>
             </div>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
@@ -266,7 +292,7 @@ export default function ProspectionPage() {
 
       {/* TOPBAR */}
       <div style={{ background: '#fff', borderBottom: '1px solid #E8EAED', padding: '0 16px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <svg width="28" height="28" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
             <rect width="32" height="32" rx="8" fill="url(#logo-grad-p)"/>
             <defs>
@@ -280,7 +306,6 @@ export default function ProspectionPage() {
           <span style={{ fontFamily: 'var(--font-jakarta), sans-serif', fontWeight: 800, fontSize: 22, color: '#0A2880', letterSpacing: -0.5 }}>immopulse</span>
         </div>
 
-        {/* Desktop buttons — toujours à droite */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }} className="desktop-nav">
           <button onClick={logout} style={{ padding: '8px 18px', borderRadius: 100, fontSize: 13, fontWeight: 500, border: '1.5px solid #E8EAED', color: '#6B7280', background: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
             Déconnexion
@@ -290,7 +315,6 @@ export default function ProspectionPage() {
           </Link>
         </div>
 
-        {/* Mobile hamburger */}
         <div className="mobile-nav" style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
           <button onClick={() => setShowMobileMenu(!showMobileMenu)}
             style={{ width: 36, height: 36, borderRadius: 10, border: '1.5px solid #E8EAED', background: '#fff', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
@@ -327,7 +351,6 @@ export default function ProspectionPage() {
           <p style={{ fontSize: 14, color: '#9CA3AF', margin: '6px 0 0' }}>{dpesEnFavoris.length} bien{dpesEnFavoris.length > 1 ? 's' : ''} en suivi</p>
         </div>
 
-        {/* STATS — 2x2 grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginBottom: 20 }}>
           {[
             { label: 'À visiter',     value: stats.aVisiter,     color: '#6B7280', statut: 'a_visiter' },
@@ -344,7 +367,6 @@ export default function ProspectionPage() {
           ))}
         </div>
 
-        {/* FILTRES */}
         <div style={{ background: '#fff', border: '1px solid #E8EAED', borderRadius: 14, padding: '12px 16px', marginBottom: 16, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#F7F8FA', border: '1.5px solid #E8EAED', borderRadius: 100, padding: '7px 14px', flex: 1, minWidth: 180 }}>
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#9CA3AF" strokeWidth="1.5"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5l3 3" strokeLinecap="round"/></svg>
@@ -359,7 +381,6 @@ export default function ProspectionPage() {
           <span style={{ fontSize: 12, color: '#9CA3AF', marginLeft: 'auto' }}>{dpesFiltered.length} résultat{dpesFiltered.length > 1 ? 's' : ''}</span>
         </div>
 
-        {/* TABLEAU */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: 60, color: '#9CA3AF' }}>Chargement...</div>
         ) : dpesEnFavoris.length === 0 ? (
@@ -372,7 +393,7 @@ export default function ProspectionPage() {
             </Link>
           </div>
         ) : (
-          <div style={{ background: '#fff', border: '1px solid #E8EAED', borderRadius: 16, overflow: 'hidden' }}>
+          <div style={{ background: '#fff', border: '1px solid #E8EAED', borderRadius: 16 }}>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
                 <thead>
