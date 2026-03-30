@@ -244,18 +244,7 @@ footer { background: #060f2e; padding: 60px 24px 32px; }
   .ft-col:first-child .ft-desc { margin: 16px auto 0; }
   .ft-bottom { flex-direction: column; align-items: center; gap: 8px; text-align: center; }
   footer { padding: 48px 16px 24px; }
-
-  .ft-col:first-child .logo-text {
-  display: block;
-  text-align: center;
-  width: 100%;
-}
-
-.ft-col:first-child a {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
+  
   
 }
 </style>
@@ -561,7 +550,7 @@ function fmtDate(s) {
 function loadSigs(cfg) {
   var cut = new Date(Date.now() - (cfg.jours||15)*86400000).toISOString();
   var cpFilter = cfg.codes_postaux.map(function(cp){ return 'code_postal.eq.'+cp; }).join(',');
-  var url = SB_URL + '/rest/v1/dpes?select=*&or=('+cpFilter+')&latitude=not.is.null&longitude=not.is.null&date_etablissement=gte.' + cut + '&order=date_etablissement.desc&limit=500';
+  var url = SB_URL + '/rest/v1/dpes?select=*&or=('+cpFilter+')&latitude=not.is.null&longitude=not.is.null&date_etablissement=gte.' + cut + '&order=date_etablissement.desc&limit=100';
   fetch(url, {headers:{apikey:SB_KEY,'Authorization':'Bearer '+SB_KEY}})
     .then(function(r){return r.json();})
     .then(function(data){
