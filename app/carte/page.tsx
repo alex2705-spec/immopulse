@@ -621,7 +621,6 @@ export default function CartePage() {
         </button>
 
         </>}
-        <span style={{ fontSize: 12, color: '#9CA3AF', marginLeft: 'auto', flexShrink: 0, paddingRight: 4 }}>{dpesFiltres.length}</span>
       </div>
 
       {/* BODY */}
