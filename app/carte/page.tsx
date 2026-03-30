@@ -648,7 +648,7 @@ export default function CartePage() {
               <button onClick={() => mapInstanceRef.current?.zoomOut()} style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', border: 'none', cursor: 'pointer', fontSize: 20, color: '#111', fontWeight: 300 }}>−</button>
             </div>
           )}
-          <div ref={drawerRef} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: drawerOpen ? '44%' : '0%', background: '#fff', borderRadius: '20px 20px 0 0', boxShadow: '0 -4px 24px rgba(0,0,0,0.12)', transition: 'height 0.3s ease', zIndex: 1000, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <div ref={drawerRef} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: drawerOpen ? '50%' : '0%', background: '#fff', borderRadius: '20px 20px 0 0', boxShadow: '0 -4px 24px rgba(0,0,0,0.12)', transition: 'height 0.3s ease', zIndex: 1000, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div style={{ padding: '12px 0 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flexShrink: 0, cursor: 'pointer' }} onClick={() => setDrawerOpen(!drawerOpen)}>
               <div style={{ width: 36, height: 4, borderRadius: 2, background: '#E8EAED' }}/>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 16px' }}>
