@@ -287,7 +287,7 @@ export default function ProspectionPage() {
   }
 
   return (
-    <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#F0F4FF', minHeight: '100vh', overflowX: 'hidden' }}
+    <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#F0F4FF', overflowX: 'hidden' }}
       onClick={() => { setOpenDropdown(null); setShowMobileMenu(false) }}>
 
       {/* TOPBAR */}
@@ -345,7 +345,7 @@ export default function ProspectionPage() {
         }
       `}</style>
 
-      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '20px 16px 80px' }}>
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '20px 16px 24px' }}>
         <div style={{ marginBottom: 20 }}>
           <h1 style={{ fontSize: 26, fontWeight: 400, color: '#111', margin: 0, fontFamily: 'DM Serif Display, serif' }}>Espace Prospection</h1>
           <p style={{ fontSize: 14, color: '#9CA3AF', margin: '6px 0 0' }}>{dpesEnFavoris.length} bien{dpesEnFavoris.length > 1 ? 's' : ''} en suivi</p>
@@ -393,8 +393,8 @@ export default function ProspectionPage() {
             </Link>
           </div>
         ) : (
-          <div style={{ background: '#fff', border: '1px solid #E8EAED', borderRadius: 16 }}>
-            <div style={{ overflowX: 'auto' }}>
+          <div style={{ background: '#fff', border: '1px solid #E8EAED', borderRadius: 16, overflow: 'visible' }}>
+            <div style={{ overflowX: 'auto', borderRadius: 16 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #E8EAED', background: '#F9FAFB' }}>
