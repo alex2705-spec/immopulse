@@ -6,24 +6,27 @@ const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
   variable: "--font-dm-sans",
-  display: "swap",
+  display: "optional",
   preload: true,
+  adjustFontFallback: true,
 });
 
 const dmSerif = DM_Serif_Display({
   subsets: ["latin"],
   weight: ["400"],
   variable: "--font-dm-serif",
-  display: "swap",
+  display: "optional",
   preload: true,
+  adjustFontFallback: false,
 });
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["700", "800"],
   variable: "--font-jakarta",
-  display: "swap",
+  display: "optional",
   preload: true,
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
