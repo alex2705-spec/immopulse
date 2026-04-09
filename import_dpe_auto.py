@@ -15,7 +15,8 @@ FIELDS = ",".join([
     "nom_commune_ban","coordonnee_cartographique_x_ban","coordonnee_cartographique_y_ban",
     "etiquette_dpe","conso_5_usages_par_m2_ep",
     "etiquette_ges","emission_ges_5_usages_par_m2",
-    "surface_habitable_logement","type_batiment","numero_etage_appartement"
+    "surface_habitable_logement","type_batiment","numero_etage_appartement",
+    "complement_adresse_batiment","complement_adresse_logement","nom_residence"
 ])
 
 def get_codes_postaux():
@@ -69,23 +70,26 @@ def transform(item, cp):
     etage = str(int(etage)) if etage and str(etage) != "0" else None
 
     return {
-        "numero_dpe":                   item.get("numero_dpe"),
-        "date_etablissement":           item.get("date_etablissement_dpe"),
-        "adresse":                      item.get("adresse_ban", ""),
-        "code_postal":                  cp,
-        "ville":                        item.get("nom_commune_ban", ""),
-        "latitude":                     round(lat, 6),
-        "longitude":                    round(lon, 6),
-        "classe_dpe":                   item.get("etiquette_dpe"),
-        "consommation_energie":         si(item.get("conso_5_usages_par_m2_ep")),
-        "conso_5_usages_par_m2_ep":     sf(item.get("conso_5_usages_par_m2_ep")),
-        "emission_ges":                 item.get("etiquette_ges"),
-        "emission_ges_5_usages_par_m2": sf(item.get("emission_ges_5_usages_par_m2")),
-        "surface_habitable":            sf(item.get("surface_habitable_logement")),
-        "type_batiment":                item.get("type_batiment"),
-        "etage":                        etage,
-        "annee_construction":           None,
-        "is_new":                       True,
+        "numero_dpe":                    item.get("numero_dpe"),
+        "date_etablissement":            item.get("date_etablissement_dpe"),
+        "adresse":                       item.get("adresse_ban", ""),
+        "code_postal":                   cp,
+        "ville":                         item.get("nom_commune_ban", ""),
+        "latitude":                      round(lat, 6),
+        "longitude":                     round(lon, 6),
+        "classe_dpe":                    item.get("etiquette_dpe"),
+        "consommation_energie":          si(item.get("conso_5_usages_par_m2_ep")),
+        "conso_5_usages_par_m2_ep":      sf(item.get("conso_5_usages_par_m2_ep")),
+        "emission_ges":                  item.get("etiquette_ges"),
+        "emission_ges_5_usages_par_m2":  sf(item.get("emission_ges_5_usages_par_m2")),
+        "surface_habitable":             sf(item.get("surface_habitable_logement")),
+        "type_batiment":                 item.get("type_batiment"),
+        "etage":                         etage,
+        "annee_construction":            None,
+        "is_new":                        True,
+        "complement_adresse_batiment":   item.get("complement_adresse_batiment") or None,
+        "complement_adresse_logement":   item.get("complement_adresse_logement") or None,
+        "nom_residence":                 item.get("nom_residence") or None,
     }
 
 def main():
@@ -101,20 +105,27 @@ def main():
         print(f"\n📍 {cp}...")
 
         items = fetch_dpe(cp)
+
+        # Debug : vérifie si l'API retourne les champs complément
+        print("  🔍 Debug 3 premiers items :")
+        for item in items[:3]:
+            print(f"    complement_batiment: {item.get('complement_adresse_batiment')}")
+            print(f"    complement_logement: {item.get('complement_adresse_logement')}")
+            print(f"    nom_residence: {item.get('nom_residence')}")
+            print("    ---")
+
         rows = [r for r in [transform(i, cp) for i in items] if r]
         print(f"  → {len(rows)} DPE récupérés")
 
         if rows:
-            # Upsert : insère les nouveaux, ignore les existants
-            upsert_headers = {**HEADERS_SB, "Prefer": "resolution=ignore-duplicates"}
             resp = requests.post(
                 f"{SB_URL}/rest/v1/dpes?on_conflict=numero_dpe",
-                headers=upsert_headers,
+                headers=HEADERS_SB,
                 json=rows,
                 timeout=30
             )
             if resp.status_code in (200, 201):
-                print(f"  ✅ {len(rows)} insérés")
+                print(f"  ✅ {len(rows)} mis à jour")
             else:
                 print(f"  ⚠️ Erreur {resp.status_code}: {resp.text[:200]}")
 

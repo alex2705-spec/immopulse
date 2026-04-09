@@ -23,6 +23,9 @@ type DPE = {
   latitude: number | null
   longitude: number | null
   is_new: boolean
+  complement_adresse_batiment: string | null
+  complement_adresse_logement: string | null
+  nom_residence: string | null
 }
 
 const DPE_COLORS: Record<string, { bg: string; text: string }> = {
@@ -64,7 +67,6 @@ const stdDateOptions = [
   { label: 'Personnalisé',      days: -1  },
 ]
 
-// ── COMPOSANT DATE PICKER CUSTOM ──
 const MOIS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre']
 const JOURS_FR = ['Lu','Ma','Me','Je','Ve','Sa','Di']
 
@@ -83,11 +85,9 @@ function CustomDatePicker({ value, onChange, placeholder, hasError }: {
   }, [])
 
   const displayValue = value ? value.split('-').reverse().join('/') : ''
-
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
-  // Mon=0 ... Sun=6 mapping
-  const firstDayRaw = new Date(viewYear, viewMonth, 1).getDay() // 0=Sun
-  const firstDay = firstDayRaw === 0 ? 6 : firstDayRaw - 1    // shift to Mon=0
+  const firstDayRaw = new Date(viewYear, viewMonth, 1).getDay()
+  const firstDay = firstDayRaw === 0 ? 6 : firstDayRaw - 1
 
   const cells: (number | null)[] = []
   for (let i = 0; i < firstDay; i++) cells.push(null)
@@ -119,12 +119,9 @@ function CustomDatePicker({ value, onChange, placeholder, hasError }: {
           <path d="M5 1v3M11 1v3M2 6h12" strokeLinecap="round"/>
         </svg>
       </div>
-
       {open && (
         <div onClick={e => e.stopPropagation()}
           style={{ position: 'absolute', top: 42, left: 0, zIndex: 999999, background: '#fff', border: '1px solid #E8EAED', borderRadius: 14, boxShadow: '0 8px 32px rgba(10,40,128,0.14)', padding: 12, width: 240 }}>
-
-          {/* Header navigation */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <button onClick={prevMonth} style={{ width: 28, height: 28, borderRadius: 8, border: 'none', background: '#F7F8FA', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               onMouseEnter={e => e.currentTarget.style.background = '#EEF2FF'}
@@ -138,35 +135,21 @@ function CustomDatePicker({ value, onChange, placeholder, hasError }: {
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#374151" strokeWidth="1.8"><path d="M4.5 2L8 6l-3.5 4" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
           </div>
-
-          {/* Jours de la semaine */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', marginBottom: 4 }}>
             {JOURS_FR.map(j => (
               <div key={j} style={{ textAlign: 'center', fontSize: 10, fontWeight: 600, color: '#9CA3AF', padding: '2px 0' }}>{j}</div>
             ))}
           </div>
-
-          {/* Grille des jours */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}>
             {cells.map((d, i) => (
-              <div key={i}
-                onClick={() => d && selectDay(d)}
-                style={{
-                  height: 30, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 12, fontWeight: isSelected(d!) ? 700 : 400,
-                  cursor: d ? 'pointer' : 'default',
-                  background: isSelected(d!) ? 'linear-gradient(135deg,#0A2880,#1A4DC8)' : 'transparent',
-                  color: !d ? 'transparent' : isSelected(d) ? '#fff' : '#111',
-                  transition: 'all .1s',
-                }}
+              <div key={i} onClick={() => d && selectDay(d)}
+                style={{ height: 30, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: isSelected(d!) ? 700 : 400, cursor: d ? 'pointer' : 'default', background: isSelected(d!) ? 'linear-gradient(135deg,#0A2880,#1A4DC8)' : 'transparent', color: !d ? 'transparent' : isSelected(d) ? '#fff' : '#111', transition: 'all .1s' }}
                 onMouseEnter={e => { if (d && !isSelected(d)) e.currentTarget.style.background = '#EEF2FF' }}
                 onMouseLeave={e => { if (d && !isSelected(d)) e.currentTarget.style.background = 'transparent' }}>
                 {d || ''}
               </div>
             ))}
           </div>
-
-          {/* Footer clear */}
           {value && (
             <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #F3F4F6', display: 'flex', justifyContent: 'flex-end' }}>
               <button onClick={() => { onChange(''); setOpen(false) }}
@@ -202,6 +185,10 @@ export default function CartePage() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
 
+  // ── COMPLEMENT INFO POPUP ──
+  const [complementPopupId, setComplementPopupId] = useState<string | null>(null)
+  const [complementPopupPos, setComplementPopupPos] = useState({ top: 0, left: 0 })
+
   // ── RECHERCHE PAR DPE MANUEL ──
   const [showAnnonceSearch, setShowAnnonceSearch] = useState(false)
   const [annonceConso, setAnnonceConso] = useState('')
@@ -235,10 +222,18 @@ export default function CartePage() {
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  // Bloque le scroll natif sur mobile uniquement sur la page carte
   useEffect(() => {
     document.body.classList.add('no-scroll')
     return () => document.body.classList.remove('no-scroll')
+  }, [])
+
+  // ── Ferme la popup complément au scroll du panel ──
+  useEffect(() => {
+    const panel = panelRef.current
+    if (!panel) return
+    const handler = () => setComplementPopupId(null)
+    panel.addEventListener('scroll', handler)
+    return () => panel.removeEventListener('scroll', handler)
   }, [])
 
   useEffect(() => {
@@ -286,6 +281,13 @@ export default function CartePage() {
     async function initMap() {
       const L = await import('leaflet')
       await import('leaflet/dist/leaflet.css')
+      // Fix tuiles Leaflet + Tailwind/Next.js
+      delete (L.Icon.Default.prototype as any)._getIconUrl
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      })
       leafletRef.current = L
       const container = mapRef.current as any
       if (container?._leaflet_id) container._leaflet_id = null
@@ -336,11 +338,9 @@ export default function CartePage() {
   useEffect(() => {
     if (!selected || !mapInstanceRef.current || !selected.latitude || !selected.longitude) return
     if (isMobile) {
-      // Décale vers le haut pour que le pin reste visible au-dessus du drawer (50% écran)
       const map = mapInstanceRef.current
       const targetLatLng = [selected.latitude, selected.longitude] as [number, number]
       map.flyTo(targetLatLng, 17, { duration: 0.8 })
-      // Après le flyTo, offset le centre vers le haut pour compenser le drawer
       setTimeout(() => {
         const point = map.latLngToContainerPoint(targetLatLng)
         const drawerHeight = window.innerHeight * 0.55
@@ -388,7 +388,6 @@ export default function CartePage() {
     const conso = parseFloat(annonceConso)
     const emission = parseFloat(annonceEmission)
     if (!annonceConso.trim() || !annonceEmission.trim() || isNaN(conso) || isNaN(emission)) return
-    // Validation dates
     if (annonceFilterDate) {
       if (!annonceDateDebut || !annonceDateFin) {
         setAnnonceErrorCode('DATE_ERROR')
@@ -455,12 +454,30 @@ export default function CartePage() {
     isCustomMode ? selectedDates.size > 0 : filterDays !== null && filterDays !== 15
   ].filter(Boolean).length
 
+  // ── DPECARD ──
   const DpeCard = ({ dpe }: { dpe: DPE }) => {
     const colors = dpe.classe_dpe ? DPE_COLORS[dpe.classe_dpe] : { bg: '#f3f4f6', text: '#6b7280' }
     const isSelected = selected?.id === dpe.id
     const isHovered  = hoveredId === dpe.id
     const isFav      = favoris.has(dpe.id)
     const isActive   = isSelected || isHovered
+    const hasComplement = !!(dpe.complement_adresse_batiment || dpe.complement_adresse_logement || dpe.nom_residence)
+    const isComplementOpen = complementPopupId === dpe.id
+
+    function openComplementPopup(e: React.MouseEvent<HTMLButtonElement>) {
+      e.stopPropagation()
+      if (isComplementOpen) {
+        setComplementPopupId(null)
+        return
+      }
+      const rect = e.currentTarget.getBoundingClientRect()
+      setComplementPopupPos({
+        top: rect.top,
+        left: rect.left - 268,
+      })
+      setComplementPopupId(dpe.id)
+    }
+
     return (
       <div
         ref={el => { cardRefs.current[dpe.id] = el }}
@@ -499,19 +516,45 @@ export default function CartePage() {
             )}
           </div>
         </div>
-        <button onClick={e => { e.stopPropagation(); toggleFavori(dpe.id) }}
-          style={{ width: 28, height: 28, borderRadius: '50%', border: 'none', background: isActive ? 'rgba(255,255,255,0.15)' : isFav ? FAV_BG : 'transparent', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <svg width="15" height="15" viewBox="0 0 16 16" fill={isFav ? (isActive ? '#fff' : FAV_COLOR) : 'none'} stroke={isFav ? (isActive ? '#fff' : FAV_COLOR) : isActive ? '#fff' : '#9CA3AF'} strokeWidth="1.5">
-            <path d="M8 13S2 9 2 5.5A3.5 3.5 0 0 1 8 3a3.5 3.5 0 0 1 6 2.5C14 9 8 13 8 13z"/>
-          </svg>
-        </button>
+
+        {/* ── BOUTONS DROITE : cœur + "+" complement info ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+          <button onClick={e => { e.stopPropagation(); toggleFavori(dpe.id) }}
+            style={{ width: 28, height: 28, borderRadius: '50%', border: 'none', background: isActive ? 'rgba(255,255,255,0.15)' : isFav ? FAV_BG : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="15" height="15" viewBox="0 0 16 16" fill={isFav ? (isActive ? '#fff' : FAV_COLOR) : 'none'} stroke={isFav ? (isActive ? '#fff' : FAV_COLOR) : isActive ? '#fff' : '#9CA3AF'} strokeWidth="1.5">
+              <path d="M8 13S2 9 2 5.5A3.5 3.5 0 0 1 8 3a3.5 3.5 0 0 1 6 2.5C14 9 8 13 8 13z"/>
+            </svg>
+          </button>
+
+          {/* Bouton "+" — uniquement si feature activée ET données disponibles */}
+          {access?.featureComplementInfo && hasComplement && (
+            <button
+              onClick={openComplementPopup}
+              title="Complément d'informations"
+              style={{
+                width: 28, height: 28, borderRadius: '50%', border: 'none',
+                background: isComplementOpen
+                  ? (isActive ? '#fff' : GRAD)
+                  : (isActive ? 'rgba(255,255,255,0.15)' : 'transparent'),
+                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .15s',
+              }}>
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"
+                stroke={isComplementOpen ? (isActive ? '#0A2880' : '#fff') : (isActive ? '#fff' : '#9CA3AF')}
+                strokeWidth="1.8" strokeLinecap="round">
+                <circle cx="7" cy="7" r="6"/>
+                <line x1="7" y1="4.5" x2="7" y2="9.5"/>
+                <line x1="4.5" y1="7" x2="9.5" y2="7"/>
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
     )
   }
 
   return (
     <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: 'DM Sans, sans-serif', overflow: 'hidden' }}
-      onClick={() => { setShowDatePicker(false); setShowAnnonceSearch(false); setShowMobileMenu(false) }}>
+      onClick={() => { setShowDatePicker(false); setShowAnnonceSearch(false); setShowMobileMenu(false); setComplementPopupId(null) }}>
 
       {/* TOPBAR */}
       <div style={{ height: 56, flexShrink: 0, background: '#fff', borderBottom: '1px solid #E8EAED', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 500 }}>
@@ -527,8 +570,6 @@ export default function CartePage() {
             <polyline points="4,18 9,18 11,12 14,22 17,10 20,20 23,18 28,18" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <span style={{ fontFamily: 'var(--font-jakarta), sans-serif', fontWeight: 800, fontSize: isMobile ? 18 : 22, color: '#0A2880', letterSpacing: -0.5 }}>immopulse</span>
-
-          {/* Codes postaux — desktop only */}
           {!isMobile && access?.codesPostaux && access.codesPostaux.length > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 6, marginTop: 2 }}>
               {access.codesPostaux.map((cp: string) => (
@@ -540,7 +581,6 @@ export default function CartePage() {
             </div>
           )}
         </div>
-
         {!isMobile && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button onClick={logout} style={{ padding: '7px 14px', borderRadius: 100, fontSize: 13, fontWeight: 500, border: '1.5px solid #E8EAED', color: '#6B7280', background: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
@@ -549,7 +589,6 @@ export default function CartePage() {
             <Link href="/prospection" style={{ padding: '7px 14px', borderRadius: 100, fontSize: 13, fontWeight: 500, border: '1.5px solid #E8EAED', color: '#6B7280', textDecoration: 'none' }}>Espace Prospection</Link>
           </div>
         )}
-
         {isMobile && (
           <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
             <button onClick={() => setShowMobileMenu(!showMobileMenu)}
@@ -602,8 +641,6 @@ export default function CartePage() {
             ✕ ({activeFiltresCount})
           </button>
         )}
-
-        {/* Séparateur + bouton recherche annonce — feature_geoloc uniquement */}
         {access?.featureGeoloc && <>
         <div style={{ width: 1, height: 22, background: '#E8EAED', flexShrink: 0 }}/>
         <button
@@ -612,20 +649,15 @@ export default function CartePage() {
           title="Rechercher par annonce"
           style={{ width: 34, height: 34, borderRadius: 10, border: 'none', outline: showAnnonceSearch ? 'none' : '1.5px solid #E8EAED', background: showAnnonceSearch ? GRAD : '#fff', color: showAnnonceSearch ? '#fff' : '#6B7280', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .15s' }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-            {/* Cercle extérieur */}
             <circle cx="12" cy="12" r="9"/>
-            {/* Cercle intérieur */}
             <circle cx="12" cy="12" r="4"/>
-            {/* Point central */}
             <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
-            {/* Croix */}
             <line x1="12" y1="2" x2="12" y2="5.5"/>
             <line x1="12" y1="18.5" x2="12" y2="22"/>
             <line x1="2" y1="12" x2="5.5" y2="12"/>
             <line x1="18.5" y1="12" x2="22" y2="12"/>
           </svg>
         </button>
-
         </>}
         <span style={{ fontSize: 12, color: '#9CA3AF', marginLeft: 'auto', flexShrink: 0, paddingRight: 4 }}>{dpesFiltres.length}</span>
       </div>
@@ -704,7 +736,6 @@ export default function CartePage() {
               </div>
             </div>
           )}
-
           <div style={{ flex: 1, position: 'relative', filter: 'grayscale(50%)' }}>
             <div ref={mapRef} style={{ position: 'absolute', inset: 0 }}/>
             {!mapReady && (
@@ -725,7 +756,6 @@ export default function CartePage() {
               </div>
             )}
           </div>
-
           <div style={{ width: 370, flexShrink: 0, background: '#fff', borderLeft: '1px solid #E8EAED', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div style={{ padding: '14px 18px', borderBottom: '1px solid #E8EAED', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
               <span style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>DPE détectés</span>
@@ -757,47 +787,26 @@ export default function CartePage() {
         document.body
       )}
 
-      {/* DROPDOWN RECHERCHE ANNONCE — feature_geoloc uniquement */}
+      {/* DROPDOWN RECHERCHE ANNONCE */}
       {access?.featureGeoloc && showAnnonceSearch && typeof document !== 'undefined' && createPortal(
         <div onClick={e => e.stopPropagation()}
           style={{ position: 'fixed', top: annonceDropPos.top, left: annonceDropPos.left, background: '#fff', border: '1px solid #E8EAED', borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.16)', padding: 16, zIndex: 99999, width: 360 }}>
-          
           <div style={{ fontSize: 13, fontWeight: 700, color: '#111', marginBottom: 4 }}>Rechercher par valeurs DPE</div>
-          <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 12 }}>Entre les valeurs affichées sur l’annonce (SeLoger, Bienici…)</div>
-
+          <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 12 }}>Entre les valeurs affichées sur l'annonce (SeLoger, Bienici…)</div>
           <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 10, fontWeight: 600, color: '#6B7280', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>Conso kWh/m²</div>
-              <input
-                autoFocus
-                type="number"
-                min="10" max="800"
-                value={annonceConso}
-                onChange={e => setAnnonceConso(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSearchAnnonce()}
-                placeholder="ex: 122"
+              <input autoFocus type="number" min="10" max="800" value={annonceConso} onChange={e => setAnnonceConso(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearchAnnonce()} placeholder="ex: 122"
                 style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1.5px solid #E8EAED', fontSize: 13, fontWeight: 600, outline: 'none', fontFamily: 'DM Sans, sans-serif', boxSizing: 'border-box' as any }}
-                onFocus={e => e.target.style.borderColor = '#2260E8'}
-                onBlur={e => e.target.style.borderColor = '#E8EAED'}
-              />
+                onFocus={e => e.target.style.borderColor = '#2260E8'} onBlur={e => e.target.style.borderColor = '#E8EAED'}/>
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 10, fontWeight: 600, color: '#6B7280', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>GES kgCO₂/m²</div>
-              <input
-                type="number"
-                min="1" max="150"
-                value={annonceEmission}
-                onChange={e => setAnnonceEmission(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSearchAnnonce()}
-                placeholder="ex: 4"
+              <input type="number" min="1" max="150" value={annonceEmission} onChange={e => setAnnonceEmission(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearchAnnonce()} placeholder="ex: 4"
                 style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1.5px solid #E8EAED', fontSize: 13, fontWeight: 600, outline: 'none', fontFamily: 'DM Sans, sans-serif', boxSizing: 'border-box' as any }}
-                onFocus={e => e.target.style.borderColor = '#2260E8'}
-                onBlur={e => e.target.style.borderColor = '#E8EAED'}
-              />
+                onFocus={e => e.target.style.borderColor = '#2260E8'} onBlur={e => e.target.style.borderColor = '#E8EAED'}/>
             </div>
           </div>
-
-          {/* Filtre par date */}
           <div style={{ marginBottom: 10 }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', userSelect: 'none' as any }}
               onClick={() => { setAnnonceFilterDate(!annonceFilterDate); setAnnonceError(''); setAnnonceErrorCode(null) }}>
@@ -806,39 +815,23 @@ export default function CartePage() {
               </div>
               <span style={{ fontSize: 12, fontWeight: 500, color: '#374151' }}>Filtrer par date du DPE</span>
             </label>
-
             {annonceFilterDate && (
               <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 10, fontWeight: 600, color: '#6B7280', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>Date de début</div>
-                  <CustomDatePicker
-                    value={annonceDateDebut}
-                    onChange={v => { setAnnonceDateDebut(v); setAnnonceError(''); setAnnonceErrorCode(null) }}
-                    placeholder="jj/mm/aaaa"
-                    hasError={annonceErrorCode === 'DATE_ERROR' && !annonceDateDebut}
-                  />
+                  <CustomDatePicker value={annonceDateDebut} onChange={v => { setAnnonceDateDebut(v); setAnnonceError(''); setAnnonceErrorCode(null) }} placeholder="jj/mm/aaaa" hasError={annonceErrorCode === 'DATE_ERROR' && !annonceDateDebut}/>
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 10, fontWeight: 600, color: '#6B7280', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>Date de fin</div>
-                  <CustomDatePicker
-                    value={annonceDateFin}
-                    onChange={v => { setAnnonceDateFin(v); setAnnonceError(''); setAnnonceErrorCode(null) }}
-                    placeholder="jj/mm/aaaa"
-                    hasError={annonceErrorCode === 'DATE_ERROR' && !annonceDateFin}
-                  />
+                  <CustomDatePicker value={annonceDateFin} onChange={v => { setAnnonceDateFin(v); setAnnonceError(''); setAnnonceErrorCode(null) }} placeholder="jj/mm/aaaa" hasError={annonceErrorCode === 'DATE_ERROR' && !annonceDateFin}/>
                 </div>
               </div>
             )}
           </div>
-
-          <button
-            onClick={handleSearchAnnonce}
-            disabled={annonceLoading || !annonceConso.trim() || !annonceEmission.trim()}
+          <button onClick={handleSearchAnnonce} disabled={annonceLoading || !annonceConso.trim() || !annonceEmission.trim()}
             style={{ width: '100%', padding: '10px', borderRadius: 10, background: annonceLoading || !annonceConso.trim() || !annonceEmission.trim() ? '#E8EAED' : GRAD, color: annonceLoading || !annonceConso.trim() || !annonceEmission.trim() ? '#9CA3AF' : '#fff', border: 'none', fontSize: 13, fontWeight: 600, cursor: annonceLoading || !annonceConso.trim() || !annonceEmission.trim() ? 'not-allowed' : 'pointer', fontFamily: 'DM Sans, sans-serif', marginBottom: 12 }}>
             {annonceLoading ? 'Recherche...' : 'Rechercher'}
           </button>
-
-          {/* Statut */}
           {annonceError && (() => {
             const isNotFound = annonceErrorCode === 'NOT_FOUND'
             let bg = '#FEF2F2', border = '#FECACA', color = '#DC2626', icon = '✕'
@@ -855,39 +848,24 @@ export default function CartePage() {
               Bien localisé — {annonceResult.matches.length} DPE correspondant{annonceResult.matches.length > 1 ? 's' : ''}
             </div>
           )}
-
-          {/* Résultats */}
           {annonceResult && (
             <div>
-              {/* Valeurs extraites */}
               <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
                 {annonceResult.extracted.conso && (
-                  <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 100, background: '#EEF2FF', color: '#2260E8', border: '1px solid #C7D2FE' }}>
-                    Conso : {annonceResult.extracted.conso} kWh/m²
-                  </span>
+                  <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 100, background: '#EEF2FF', color: '#2260E8', border: '1px solid #C7D2FE' }}>Conso : {annonceResult.extracted.conso} kWh/m²</span>
                 )}
                 {annonceResult.extracted.emission && (
-                  <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 100, background: '#EEF2FF', color: '#2260E8', border: '1px solid #C7D2FE' }}>
-                    GES : {annonceResult.extracted.emission} kg CO₂
-                  </span>
+                  <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 100, background: '#EEF2FF', color: '#2260E8', border: '1px solid #C7D2FE' }}>GES : {annonceResult.extracted.emission} kg CO₂</span>
                 )}
               </div>
-
               {annonceResult.matches.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '16px 0', color: '#9CA3AF', fontSize: 12 }}>
-                  Aucun DPE correspondant trouvé dans votre secteur
-                </div>
+                <div style={{ textAlign: 'center', padding: '16px 0', color: '#9CA3AF', fontSize: 12 }}>Aucun DPE correspondant trouvé dans votre secteur</div>
               ) : (
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: '#6B7280', marginBottom: 6 }}>
-                    {annonceResult.matches.length} DPE correspondant{annonceResult.matches.length > 1 ? 's' : ''}
-                  </div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#6B7280', marginBottom: 6 }}>{annonceResult.matches.length} DPE correspondant{annonceResult.matches.length > 1 ? 's' : ''}</div>
                   {annonceResult.matches.map((match: any) => (
                     <div key={match.id}
-                      onClick={() => {
-                        const dpe = dpes.find(d => d.id === match.id)
-                        if (dpe) { handleSelectDpe(dpe); setShowAnnonceSearch(false) }
-                      }}
+                      onClick={() => { const dpe = dpes.find(d => d.id === match.id); if (dpe) { handleSelectDpe(dpe); setShowAnnonceSearch(false) } }}
                       style={{ padding: '10px 12px', borderRadius: 10, border: '1px solid #E8EAED', marginBottom: 6, cursor: 'pointer', transition: 'all .15s' }}
                       onMouseEnter={e => { e.currentTarget.style.background = '#EEF2FF'; e.currentTarget.style.borderColor = '#C7D2FE' }}
                       onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#E8EAED' }}>
@@ -900,6 +878,46 @@ export default function CartePage() {
             </div>
           )}
         </div>,
+        document.body
+      )}
+
+      {/* ── POPUP COMPLÉMENT INFO ── */}
+      {access?.featureComplementInfo && complementPopupId && typeof document !== 'undefined' && createPortal(
+        (() => {
+          const dpe = dpes.find(d => d.id === complementPopupId)
+          if (!dpe) return null
+          return (
+            <div onClick={e => e.stopPropagation()}
+              style={{ position: 'fixed', top: complementPopupPos.top, left: complementPopupPos.left, background: '#fff', border: '1px solid #E8EAED', borderRadius: 14, boxShadow: '0 8px 32px rgba(10,40,128,0.14)', padding: 14, zIndex: 99999, width: 260 }}>
+              {/* Header avec croix */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.6 }}>Complément d'informations</div>
+                <button onClick={() => setComplementPopupId(null)}
+                  style={{ width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#F3F4F6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="#6B7280" strokeWidth="1.5"><path d="M1 1l6 6M7 1L1 7"/></svg>
+                </button>
+              </div>
+              {dpe.nom_residence && (
+                <div style={{ marginBottom: 8 }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 2 }}>Résidence</div>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: '#111' }}>{dpe.nom_residence}</div>
+                </div>
+              )}
+              {dpe.complement_adresse_batiment && (
+                <div style={{ marginBottom: 8 }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 2 }}>Bâtiment</div>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: '#111' }}>{dpe.complement_adresse_batiment}</div>
+                </div>
+              )}
+              {dpe.complement_adresse_logement && (
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 2 }}>Logement</div>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: '#111' }}>{dpe.complement_adresse_logement}</div>
+                </div>
+              )}
+            </div>
+          )
+        })(),
         document.body
       )}
     </div>
