@@ -228,13 +228,13 @@ export default function CartePage() {
   }, [])
 
   // ── Ferme la popup complément au scroll du panel ──
-  useEffect(() => {
-    const panel = panelRef.current
-    if (!panel) return
-    const handler = () => setComplementPopupId(null)
-    panel.addEventListener('scroll', handler)
-    return () => panel.removeEventListener('scroll', handler)
-  }, [])
+useEffect(() => {
+  const panel = panelRef.current
+  if (!panel) return
+  const handler = () => setComplementPopupId(null)
+  panel.addEventListener('scroll', handler)
+  return () => panel.removeEventListener('scroll', handler)
+}, [dpes])
 
   useEffect(() => {
     if (!access) return
