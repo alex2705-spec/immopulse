@@ -638,7 +638,7 @@ function renderList() {
 window.addEventListener('load', function() {
   lmap = L.map('map', {zoomControl:false, scrollWheelZoom:true});
   L.control.zoom({position:'topleft'}).addTo(lmap);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(lmap);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_49a5_1_4f2d2f5f651b988729035f85',{maxZoom:19, attribution:'&copy; OSM &copy; CARTO'}).addTo(lmap);
 
   fetch(SB_URL + '/rest/v1/landing_config?id=eq.default&select=*', {
     headers:{apikey:SB_KEY,'Authorization':'Bearer '+SB_KEY}
