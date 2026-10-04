@@ -292,9 +292,9 @@ useEffect(() => {
       const container = mapRef.current as any
       if (container?._leaflet_id) container._leaflet_id = null
       const map = L.map(mapRef.current!, { center: [43.552, 7.017], zoom: 13, zoomControl: false })
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OSM &copy; CARTO', subdomains: 'abcd', maxZoom: 19,
-      }).addTo(map)
+      L.tileLayer(`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${process.env.NEXT_PUBLIC_CARTO_KEY}`, {
+  attribution: '&copy; OSM &copy; CARTO', subdomains: 'abcd', maxZoom: 19,
+}).addTo(map)
       mapInstanceRef.current = map
       setMapReady(true)
     }
